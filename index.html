@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="uz">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MM Ko'p Korxonali Reyting Tizimi</title>
+    <meta name="description"
+        content="Korxonalar mehnat muhofazasi samaradorligini baholash, reyting va taqqoslash tizimi">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1>🛡️ Mehnat Muhofazasi Reyting Tizimi</h1>
+                <p class="subtitle">Korxonalar xavfsizlik samaradorligini baholash va taqqoslash platformasi</p>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="nav-tabs">
+            <button class="tab-btn active" data-tab="dashboard">
+                <span class="tab-icon">📊</span>
+                <span>Reyting Jadvali</span>
+            </button>
+            <button class="tab-btn" data-tab="add-company">
+                <span class="tab-icon">➕</span>
+                <span>Korxona Qo'shish</span>
+            </button>
+            <button class="tab-btn" data-tab="comparison">
+                <span class="tab-icon">⚖️</span>
+                <span>Taqqoslash</span>
+            </button>
+            <button class="tab-btn" data-tab="statistics">
+                <span class="tab-icon">📈</span>
+                <span>Statistika</span>
+            </button>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Tab -->
+            <section class="tab-content active" id="dashboard-tab">
+                <div class="section-header">
+                    <h2>🏆 Korxonalar Reytingi</h2>
+                    <div class="header-actions">
+                        <button class="btn btn-secondary" id="export-all-btn">💾 Eksport</button>
+                        <button class="btn btn-secondary" id="import-btn">📥 Import</button>
+                    </div>
+                </div>
+
+                <!-- Overall Statistics -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">🏭</div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="total-companies">0</div>
+                            <div class="stat-label">Jami korxonalar</div>
+                        </div>
+                    </div>
+                    <div class="stat-card green">
+                        <div class="stat-icon">🟢</div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="green-zone-count">0</div>
+                            <div class="stat-label">Yashil zona</div>
+                        </div>
+                    </div>
+                    <div class="stat-card yellow">
+                        <div class="stat-icon">🟡</div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="yellow-zone-count">0</div>
+                            <div class="stat-label">Sariq zona</div>
+                        </div>
+                    </div>
+                    <div class="stat-card red">
+                        <div class="stat-icon">🔴</div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="red-zone-count">0</div>
+                            <div class="stat-label">Qizil zona</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Podium (Top 3) -->
+                <div class="podium-section" id="podium-section">
+                    <!-- JavaScript tomonidan to'ldiriladi -->
+                </div>
+
+                <!-- Companies Ranking Table -->
+                <div class="ranking-table-container">
+                    <table class="ranking-table" id="ranking-table">
+                        <thead>
+                            <tr>
+                                <th>Reyting</th>
+                                <th>Korxona</th>
+                                <th>Xodimlar</th>
+                                <th>MM Indeksi</th>
+                                <th>Zona</th>
+                                <th>Amallar</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ranking-tbody">
+                            <!-- JavaScript tomonidan to'ldiriladi -->
+                        </tbody>
+                    </table>
+                    <div class="empty-state" id="empty-state">
+                        <div class="empty-icon">📭</div>
+                        <h3>Hali korxonalar qo'shilmagan</h3>
+                        <p>Yangi korxona qo'shish uchun yuqoridagi "Korxona Qo'shish" tugmasini bosing</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Add Company Tab -->
+            <section class="tab-content" id="add-company-tab">
+                <div class="section-header">
+                    <h2 id="form-title">➕ Yangi Korxona Qo'shish</h2>
+                </div>
+
+                <form id="company-form">
+                    <!-- Company Basic Info -->
+                    <div class="card">
+                        <h3>📋 Asosiy Ma'lumotlar</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="company-name">Korxona nomi *</label>
+                                <input type="text" id="company-name" placeholder="Masalan: Xorazm Metall LLC" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="company-employees">Xodimlar soni *</label>
+                                <input type="number" id="company-employees" placeholder="190" min="1" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="company-hours">Yillik ish vaqti (soat) *</label>
+                                <input type="number" id="company-hours" placeholder="420000" min="1" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KPI Inputs (Compact Grid) -->
+                    <div class="card">
+                        <h3>📊 Ko'rsatkichlar Ma'lumotlari</h3>
+                        <div class="kpi-compact-grid">
+                            <!-- KPI 1-2 -->
+                            <div class="kpi-row">
+                                <div class="kpi-compact">
+                                    <label>1. Baxtsiz hodisalar soni</label>
+                                    <input type="number" id="input-accidents" min="0" step="1" placeholder="2">
+                                </div>
+                                <div class="kpi-compact">
+                                    <label>2. Jarohatlar soni</label>
+                                    <input type="number" id="input-injuries" min="0" step="1" placeholder="7">
+                                </div>
+                            </div>
+
+                            <!-- KPI 3-4 -->
+                            <div class="kpi-row">
+                                <div class="kpi-compact">
+                                    <label>3. Noincident kunlar</label>
+                                    <input type="number" id="input-noincident" min="0" max="365" placeholder="353">
+                                </div>
+                                <div class="kpi-compact">
+                                    <label>4. O'quvni tugatganlar</label>
+                                    <input type="number" id="input-trained" min="0" placeholder="186">
+                                </div>
+                            </div>
+
+                            <!-- KPI 5 -->
+                            <div class="kpi-row">
+                                <div class="kpi-compact">
+                                    <label>5. Baholangan ish o'rinlari</label>
+                                    <input type="number" id="input-assessed" min="0" placeholder="45">
+                                </div>
+                                <div class="kpi-compact">
+                                    <label>5. Jami ish o'rinlari</label>
+                                    <input type="number" id="input-total-workplaces" min="1" placeholder="50">
+                                </div>
+                            </div>
+
+                            <!-- KPI 6-7 -->
+                            <div class="kpi-row">
+                                <div class="kpi-compact">
+                                    <label>6. Near Miss soni</label>
+                                    <input type="number" id="input-nearmiss" min="0" placeholder="60">
+                                </div>
+                                <div class="kpi-compact">
+                                    <label>7. Javob kunlari</label>
+                                    <input type="number" id="input-response-days" min="0" step="0.1" placeholder="84">
+                                </div>
+                            </div>
+
+                            <!-- KPI 7-8 -->
+                            <div class="kpi-row">
+                                <div class="kpi-compact">
+                                    <label>7. Murojaatlar soni</label>
+                                    <input type="number" id="input-requests" min="1" placeholder="40">
+                                </div>
+                                <div class="kpi-compact">
+                                    <label>8. MM xarajatlari (mln)</label>
+                                    <input type="number" id="input-mm-budget" min="0" step="0.1" placeholder="420">
+                                </div>
+                            </div>
+
+                            <!-- KPI 8-9 -->
+                            <div class="kpi-row">
+                                <div class="kpi-compact">
+                                    <label>8. Jami xarajatlar (mln)</label>
+                                    <input type="number" id="input-total-budget" min="1" step="0.1" placeholder="18200">
+                                </div>
+                                <div class="kpi-compact">
+                                    <label>9. SHHV ta'minlanganlar</label>
+                                    <input type="number" id="input-ppe" min="0" placeholder="188">
+                                </div>
+                            </div>
+
+                            <!-- KPI 10 -->
+                            <div class="kpi-row">
+                                <div class="kpi-compact">
+                                    <label>10. Tekshiruvdan o'tgan uskunalar</label>
+                                    <input type="number" id="input-equipment-inspected" min="0" placeholder="142">
+                                </div>
+                                <div class="kpi-compact">
+                                    <label>10. Jami uskunalar</label>
+                                    <input type="number" id="input-total-equipment" min="1" placeholder="150">
+                                </div>
+                            </div>
+
+                            <!-- KPI 11 -->
+                            <div class="kpi-row">
+                                <div class="kpi-compact">
+                                    <label>11. O'tkazilgan inspeksiyalar</label>
+                                    <input type="number" id="input-inspection-done" min="0" placeholder="26">
+                                </div>
+                                <div class="kpi-compact">
+                                    <label>11. Rejalashtirilgan</label>
+                                    <input type="number" id="input-inspection-planned" min="1" placeholder="30">
+                                </div>
+                            </div>
+
+                            <!-- KPI 12-13 -->
+                            <div class="kpi-row">
+                                <div class="kpi-compact">
+                                    <label>12. Kasbiy kasalliklar</label>
+                                    <input type="number" id="input-occupational" min="0" step="1" placeholder="1">
+                                </div>
+                                <div class="kpi-compact">
+                                    <label>13. Nomuvofiqliklar</label>
+                                    <input type="number" id="input-noncompliance" min="0" placeholder="11">
+                                </div>
+                            </div>
+
+                            <!-- KPI 13-14 -->
+                            <div class="kpi-row">
+                                <div class="kpi-compact">
+                                    <label>13. Jami punktlar</label>
+                                    <input type="number" id="input-total-points" min="1" placeholder="120">
+                                </div>
+                                <div class="kpi-compact">
+                                    <label>14. FV mashg'ulotda ishtirok</label>
+                                    <input type="number" id="input-emergency-participated" min="0" placeholder="162">
+                                </div>
+                            </div>
+
+                            <!-- KPI 14-15 -->
+                            <div class="kpi-row">
+                                <div class="kpi-compact">
+                                    <label>14. FV rejalashtirilgan</label>
+                                    <input type="number" id="input-emergency-planned" min="1" placeholder="180">
+                                </div>
+                                <div class="kpi-compact">
+                                    <label>15. MM buzilishlari</label>
+                                    <input type="number" id="input-violations" min="0" placeholder="14">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="load-sample-btn">📋 Namuna yuklash</button>
+                        <button type="submit" class="btn btn-primary" id="save-company-btn">💾 Saqlash</button>
+                        <button type="button" class="btn btn-secondary" id="cancel-btn">❌ Bekor qilish</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Comparison Tab -->
+            <section class="tab-content" id="comparison-tab">
+                <div class="section-header">
+                    <h2>⚖️ Korxonalarni Taqqoslash</h2>
+                </div>
+
+                <!-- Company Selection -->
+                <div class="card">
+                    <h3>Taqqoslash uchun korxonalarni tanlang</h3>
+                    <div id="comparison-selection">
+                        <!-- JavaScript tomonidan to'ldiriladi -->
+                    </div>
+                    <button class="btn btn-primary" id="compare-btn">🔍 Taqqoslash</button>
+                </div>
+
+                <!-- Comparison Results -->
+                <div id="comparison-results" style="display: none;">
+                    <!-- Comparison Table -->
+                    <div class="card">
+                        <h3>📊 Taqqoslash Jadvali</h3>
+                        <div class="comparison-table-container">
+                            <table class="comparison-table" id="comparison-table">
+                                <!-- JavaScript tomonidan to'ldiriladi -->
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Comparison Charts -->
+                    <div class="card">
+                        <h3>📈 Grafik Taqqoslash</h3>
+                        <div class="chart-container">
+                            <canvas id="comparison-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Radar Chart -->
+                    <div class="card">
+                        <h3>🎯 Radar Tahlil</h3>
+                        <div class="chart-container">
+                            <canvas id="radar-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="empty-state" id="comparison-empty">
+                    <div class="empty-icon">⚖️</div>
+                    <h3>Taqqoslash uchun kamida 2 ta korxona kerak</h3>
+                    <p>Avval korxonalar qo'shing</p>
+                </div>
+            </section>
+
+            <!-- Statistics Tab -->
+            <section class="tab-content" id="statistics-tab">
+                <div class="section-header">
+                    <h2>📈 Umumiy Statistika</h2>
+                </div>
+
+                <div class="stats-charts-grid">
+                    <!-- Overall Index Distribution -->
+                    <div class="card">
+                        <h3>MM Indeksi Taqsimoti</h3>
+                        <div class="chart-container">
+                            <canvas id="index-distribution-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Zone Distribution -->
+                    <div class="card">
+                        <h3>Zonalar bo'yicha taqsimot</h3>
+                        <div class="chart-container">
+                            <canvas id="zone-pie-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Average KPI Scores -->
+                    <div class="card">
+                        <h3>O'rtacha KPI Ballari</h3>
+                        <div class="chart-container">
+                            <canvas id="avg-kpi-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>© 2025 Mehnat Muhofazasi Reyting Tizimi | ISO 45001, OSHA, ILO standartlariga asoslangan</p>
+        </footer>
+    </div>
+
+    <!-- Hidden file input for import -->
+    <input type="file" id="file-input" accept=".json" style="display: none;">
+
+    <script src="app.js"></script>
+</body>
+
+</html>
