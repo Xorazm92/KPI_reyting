@@ -30,7 +30,7 @@ try {
 const KPI_CONFIG = {
     ltifr: { 
         name: "Baxtsiz hodisalar (LTIFR)", 
-        weight: 0.45, 
+        weight: 0.40, 
         lowerIsBetter: true, 
         critical: true,
         icon: "⚠️",
@@ -38,7 +38,7 @@ const KPI_CONFIG = {
     },
     trir: { 
         name: "TRIR / Mikro-jarohatlar", 
-        weight: 0.12, 
+        weight: 0.10, 
         lowerIsBetter: true, 
         critical: true,
         icon: "🩹",
@@ -91,7 +91,7 @@ const KPI_CONFIG = {
     },
     responseTime: { 
         name: "Murojaatga reaksiya", 
-        weight: 0.03, 
+        weight: 0.04, 
         lowerIsBetter: false,
         icon: "⏱️"
     },
@@ -121,7 +121,7 @@ const KPI_CONFIG = {
     },
     violations: { 
         name: "Intizomiy buzilishlar", 
-        weight: 0.01, 
+        weight: 0.02, 
         lowerIsBetter: true,
         icon: "🎫"
     }
@@ -252,13 +252,15 @@ class KPICalculator {
 // Professional Penalty → Score konversiyasi
 // ===================================
 
-// LTIFR = (Lost Time Injuries × 1,000,000) / Total Hours Worked
+// LTIFR = (Lost Time Injuries × 200,000) / Total Hours Worked
+// OSHA standart normalizatsiya faktori: 200,000 (100 xodim × 2000 soat/yil)
 function calculateLTIFR(lostTimeInjuries, totalHoursWorked) {
     if (totalHoursWorked <= 0) return 0;
-    return (lostTimeInjuries * 1000000) / totalHoursWorked;
+    return (lostTimeInjuries * 200000) / totalHoursWorked;
 }
 
-// TRIR = (Recordable Incidents / Total Hours Worked) × 200,000
+// TRIR = (Recordable Incidents × 200,000) / Total Hours Worked
+// OSHA standart normalizatsiya faktori: 200,000
 function calculateTRIR(recordableIncidents, totalHoursWorked) {
     if (totalHoursWorked <= 0) return 0;
     return (recordableIncidents * 200000) / totalHoursWorked;
@@ -299,23 +301,25 @@ function normalizeKPI(value, kpiKey) {
             score = penaltyToScore(value);
             break;
 
-        case 'trir': // TRIR / Mikro-jarohatlar (12%)
+        case 'trir': // TRIR / Mikro-jarohatlar (10%)
             // 100 xodimga nisbatan jarohatlar
-            // 0% = 100 ball, 5%+ = 0 ball
+            // 0% = 100 ball, uzluksiz kamayish
             if (value === 0) {
                 score = 100;
             } else if (value <= 0.5) {
-                score = 98 - (value * 16); // Juda yaxshi
+                score = 100 - (value * 20); // 100→90 (0→0.5)
             } else if (value <= 1) {
-                score = 90 - ((value - 0.5) * 20); // Yaxshi
+                score = 90 - ((value - 0.5) * 20); // 90→80 (0.5→1)
             } else if (value <= 2) {
-                score = 80 - ((value - 1) * 20); // Qoniqarli
+                score = 80 - ((value - 1) * 20); // 80→60 (1→2)
             } else if (value <= 3) {
-                score = 60 - ((value - 2) * 20); // O'rtacha
+                score = 60 - ((value - 2) * 20); // 60→40 (2→3)
             } else if (value <= 5) {
-                score = 40 - ((value - 3) * 20); // Yomon
+                score = 40 - ((value - 3) * 10); // 40→20 (3→5)
+            } else if (value <= 10) {
+                score = 20 - ((value - 5) * 4); // 20→0 (5→10) uzluksiz kamayish
             } else {
-                score = Math.max(0, 10 - (value - 5) * 2); // Kritik
+                score = 0; // 10+ = 0
             }
             break;
 

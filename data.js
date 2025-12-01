@@ -7,9 +7,10 @@
 // ========================================
 window.KPI_WEIGHTS = {
     // LOKOMOTIV - Juda yuqori xavfli (mashinist, elektr, harakat)
+    // Jami: 1.00 (100%)
     'locomotive': {
-        'ltifr': 0.45,        // Baxtsiz hodisalar - ENG MUHIM
-        'trir': 0.12,         // TRIR / Mikro-jarohatlar
+        'ltifr': 0.40,        // Baxtsiz hodisalar - ENG MUHIM
+        'trir': 0.10,         // TRIR / Mikro-jarohatlar
         'noincident': 0.06,   // Bexavfsiz kunlar
         'training': 0.05,     // O'qitish
         'equipment': 0.06,    // Uskuna nazorati (rolling stock)
@@ -17,18 +18,19 @@ window.KPI_WEIGHTS = {
         'raCoverage': 0.05,   // Xavfni baholash
         'prevention': 0.04,   // Profilaktika (CAPEX/OPEX)
         'nearMiss': 0.04,     // Xabarlar va Safety Culture
-        'responseTime': 0.03, // Murojaatga reaksiya
+        'responseTime': 0.04, // Murojaatga reaksiya
         'inspection': 0.03,   // Nazorat rejasi
         'occupational': 0.02, // Kasbiy kasalliklar
         'compliance': 0.02,   // Audit
         'emergency': 0.02,    // Avariya mashqlari
-        'violations': 0.01    // Intizomiy
+        'violations': 0.02    // Intizomiy
     },
     
     // YO'L XO'JALIGI - Yuqori fizik xavf
+    // Jami: 1.00 (100%)
     'road': {
-        'ltifr': 0.45,
-        'trir': 0.12,
+        'ltifr': 0.40,
+        'trir': 0.10,
         'noincident': 0.06,
         'training': 0.05,
         'equipment': 0.06,
@@ -36,18 +38,19 @@ window.KPI_WEIGHTS = {
         'raCoverage': 0.05,
         'prevention': 0.04,
         'nearMiss': 0.04,
-        'responseTime': 0.03,
+        'responseTime': 0.04,
         'inspection': 0.03,
         'occupational': 0.02,
         'compliance': 0.02,
         'emergency': 0.02,
-        'violations': 0.01
+        'violations': 0.02
     },
     
     // VAGON XO'JALIGI - Texnologik xavf
+    // Jami: 1.00 (100%)
     'wagon': {
-        'ltifr': 0.45,
-        'trir': 0.12,
+        'ltifr': 0.40,
+        'trir': 0.10,
         'noincident': 0.06,
         'training': 0.05,
         'equipment': 0.06,
@@ -55,18 +58,19 @@ window.KPI_WEIGHTS = {
         'raCoverage': 0.05,
         'prevention': 0.04,
         'nearMiss': 0.04,
-        'responseTime': 0.03,
+        'responseTime': 0.04,
         'inspection': 0.03,
         'occupational': 0.02,
         'compliance': 0.02,
         'emergency': 0.02,
-        'violations': 0.01
+        'violations': 0.02
     },
     
     // ELEKTR VA ALOQA - Elektr xavfsizlik muhim
+    // Jami: 1.00 (100%)
     'electric': {
-        'ltifr': 0.45,
-        'trir': 0.12,
+        'ltifr': 0.38,
+        'trir': 0.10,
         'noincident': 0.06,
         'training': 0.06,     // O'qitish muhimroq
         'equipment': 0.05,
@@ -74,37 +78,39 @@ window.KPI_WEIGHTS = {
         'raCoverage': 0.05,
         'prevention': 0.04,
         'nearMiss': 0.04,
-        'responseTime': 0.03,
+        'responseTime': 0.04,
         'inspection': 0.03,
         'occupational': 0.02,
         'compliance': 0.02,
-        'emergency': 0.02,
-        'violations': 0.01
+        'emergency': 0.03,
+        'violations': 0.02
     },
     
     // HARAKATNI BOSHQARISH - Inson omili muhim
+    // Jami: 1.00 (100%)
     'traffic': {
-        'ltifr': 0.40,
-        'trir': 0.10,
+        'ltifr': 0.35,
+        'trir': 0.08,
         'noincident': 0.08,   // Bexavfsiz kunlar muhimroq
         'training': 0.08,     // O'qitish muhimroq
         'equipment': 0.04,
         'ppe': 0.04,
         'raCoverage': 0.06,
         'prevention': 0.04,
-        'nearMiss': 0.05,
-        'responseTime': 0.04,
+        'nearMiss': 0.06,
+        'responseTime': 0.05,
         'inspection': 0.04,
         'occupational': 0.02,
-        'compliance': 0.03,
+        'compliance': 0.02,
         'emergency': 0.02,
         'violations': 0.02
     },
     
     // ZAVODLAR - Sanoat xavfsizligi
+    // Jami: 1.00 (100%)
     'factory': {
-        'ltifr': 0.45,
-        'trir': 0.12,
+        'ltifr': 0.40,
+        'trir': 0.10,
         'noincident': 0.06,
         'training': 0.05,
         'equipment': 0.06,
@@ -112,12 +118,12 @@ window.KPI_WEIGHTS = {
         'raCoverage': 0.05,
         'prevention': 0.04,
         'nearMiss': 0.04,
-        'responseTime': 0.03,
+        'responseTime': 0.04,
         'inspection': 0.03,
         'occupational': 0.02,
         'compliance': 0.02,
         'emergency': 0.02,
-        'violations': 0.01
+        'violations': 0.02
     }
 };
 

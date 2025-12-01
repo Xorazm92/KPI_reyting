@@ -1,240 +1,88 @@
-# Mehnat Muhofazasi Reyting Tizimi (Workplace Safety Rating System)
+# O'zbekiston Temir Yo'llari AJ - Mehnat Muhofazasi Reyting Tizimi
 
-## Project Overview
+## Overview
+15 bandlik professional xavfsizlik reyting tizimi - O'zbekiston temir yo'l sanoati uchun maxsus ishlab chiqilgan. Firebase bilan integratsiya qilingan.
 
-This is a comprehensive workplace safety rating and management system designed for Uzbekistan enterprises. The system evaluates, ranks, and compares companies based on 15 key safety performance indicators (KPIs).
+## Hozirgi Holat (2024-12-01)
+- Firebase NBT-KPI bazasi bilan ishlaydi
+- 15 bandlik KPI tizimi to'liq joriy etildi
+- LTIFR va TRIR xalqaro formulalari qo'shildi
+- Penalty → Score konversiya jadvali yaratildi
 
-**Purpose**: Monitor and assess workplace safety effectiveness across multiple companies using automated rating, visualization, and hierarchical organization.
+## Asosiy Xususiyatlar
 
-**Target Users**:
-- Companies (internal monitoring)
-- Government regulatory agencies
-- Safety departments
-- Safety specialists
+### 15 Bandlik KPI Tizimi
+| # | KPI | Vazn | Tavsif |
+|---|-----|------|--------|
+| 1 | LTIFR | 45% | Lost Time Injury Frequency Rate - ENG MUHIM |
+| 2 | TRIR | 12% | Total Recordable Incident Rate |
+| 3 | Bexavfsiz kunlar | 6% | Hodisasiz kunlar soni |
+| 4 | O'qitish qamrovi | 5% | MM o'quvlarini o'tganlar |
+| 5 | Uskuna nazorati | 6% | Rolling stock va uskunalar |
+| 6 | SHHV ta'minoti | 5% | Shaxsiy himoya vositalari |
+| 7 | Xavfni baholash | 5% | Risk Assessment qamrovi |
+| 8 | Profilaktika | 4% | CAPEX/OPEX ratio |
+| 9 | Near Miss | 4% | Safety Culture indicator |
+| 10 | Murojaatga reaksiya | 3% | Nomuvofiqliklarni yopish |
+| 11 | Nazorat rejasi | 3% | Ichki nazorat ijrosi |
+| 12 | Kasbiy kasalliklar | 2% | Aniqlangan kasalliklar |
+| 13 | Audit samaradorligi | 2% | Muvofiqlik darajasi |
+| 14 | Avariya mashqlari | 2% | Tayyorgarlik darajasi |
+| 15 | Intizomiy | 1% | Talon tizimi |
 
-## Current State
+### Department Profillar
+6 ta xo'jalik profili - har biri o'ziga xos vazn koeffitsentlari bilan:
+- **Lokomotiv** (locomotive) - Juda yuqori xavf
+- **Yo'l xo'jaligi** (road) - Yuqori fizik xavf
+- **Vagon xo'jaligi** (wagon) - Texnologik xavf
+- **Elektr va Aloqa** (electric) - Elektroxavfsizlik
+- **Harakatni Boshqarish** (traffic) - Inson omili
+- **Zavodlar** (factory) - Sanoat xavfsizligi
 
-The project is fully set up and running in the Replit environment:
-- ✅ Static web application serving on port 5000
-- ✅ Firebase integration active and connected
-- ✅ 30 companies currently loaded from Firebase database
-- ✅ All features operational (rating, comparison, statistics, hierarchical views)
-- ✅ Deployment configured for static hosting
-- ✅ **Login authentication added** - session-based protection with test accounts
-
-## Technology Stack
-
-### Frontend
-- **HTML5**: Semantic markup for accessibility
-- **CSS3**: Modern styling with Grid, Flexbox, CSS Variables, animations
-- **JavaScript (ES6+)**: Vanilla JavaScript modules
-- **Chart.js 4.4.0**: Data visualization library
-
-### Backend/Data
-- **Firebase Firestore**: Cloud database for real-time data sync
-- **LocalStorage**: Local data caching and offline support
-
-### Hosting
-- **Development**: Python HTTP server on port 5000
-- **Production**: Static hosting (configured)
-
-## Project Structure
-
-```
-.
-├── index.html           # Main application interface with login form
-├── app.js              # Core application logic & KPI calculations
-├── auth.js             # Authentication system (login/logout)
-├── styles.css          # Application styling (includes login screen)
-├── hierarchy.js        # Hierarchical organization module
-├── roles.js            # Role-based access control
-├── data.js             # Department profiles and KPI weights
-├── data-loader.js      # Firebase data loading module
-├── filter.js           # Filtering and organization logic
-├── companies.json      # Company data structure
-├── README.md           # Project documentation
-├── GUIDE.md            # Comprehensive usage guide
-├── CALCULATION.md      # KPI calculation formulas
-└── firebase-rules.txt  # Firebase security rules
-```
-
-## Key Features
-
-### 1. 15 KPI Assessment System
-- LTIFR (Lost Time Injury Frequency Rate)
-- TRIR (Total Recordable Incident Rate)
-- No-incident Days
-- Training Coverage
-- Risk Assessment Coverage
-- Near Miss Reporting
-- Response Time
-- Prevention Programs
-- PPE Compliance
-- Equipment Maintenance
-- Safety Inspections
-- Occupational Health
-- Regulatory Compliance
-- Emergency Preparedness
-- Safety Violations
-
-### 2. 3-Level Hierarchy
-- 🏢 **Management** (Boshqaruv): Full access to all companies
-- 👔 **Supervisor** (Nazoratchi): Access to assigned branches
-- 🏭 **Company** (Korxona): Access to own data only
-
-### 3. Risk Groups
-- 🔴 **High Risk**: Manufacturing, Construction (min KPI: 85)
-- 🟡 **Medium Risk**: Logistics, Industry (min KPI: 75)
-- 🟢 **Low Risk**: Office, Services (min KPI: 65)
-
-### 4. Rating & Analysis
-- Automatic MM Index calculation
-- Zone classification (Green/Yellow/Red)
-- Top 3 Podium display
-- Comparison and benchmarking
-
-### 5. Modern UI
-- Responsive design (mobile/tablet/desktop)
-- Dark theme with gradient colors
-- Real-time updates
-- Professional appearance
-
-## Firebase Configuration
-
-The application uses Firebase (NBT-KPI project) for cloud data storage:
-
+### Professional Formulalar
 ```javascript
-Project ID: nbt-kpi
-Auth Domain: nbt-kpi.firebaseapp.com
-Storage: nbt-kpi.firebasestorage.app
+// LTIFR = (Lost Time Injuries × 1,000,000) / Total Hours Worked
+LTIFR = (LTI × 1000000) / THW
+
+// TRIR = (Recordable Incidents / Total Hours Worked) × 200,000
+TRIR = (RI × 200000) / THW
+
+// Penalty Score = O'lim×100 + Og'ir×50 + Guruh×40 + Yengil×10
 ```
 
-**Note**: Firebase credentials are already configured in `app.js`. The application connects automatically on load.
+### Zona Klassifikatsiyasi (OSHA)
+- 🟢 Yashil zona: 80+ ball - Xavfsiz
+- 🟡 Sariq zona: 50-79 ball - O'rtacha xavf
+- 🔴 Qizil zona: <50 ball - Yuqori xavf
 
-## Development Setup
+## Texnik Tuzilma
 
-### Running Locally
-The application is configured to run with a Python HTTP server:
+### Fayllar
+- `index.html` - Asosiy interfeys (Login, Dashboard, Form)
+- `app.js` - Biznes logika, KPI hisoblash, Firebase operatsiyalari
+- `data.js` - KPI vaznlar, koeffitsentlar, benchmark jadvallar
+- `styles.css` - UI/UX styling, wizard, responsive design
+- `auth.js` - Autentifikatsiya va rol tizimi
+- `filter.js` - Tashkiliy struktura filtrlari
+- `hierarchy.js` - Ierarxik ma'lumotlar
 
-```bash
-python -m http.server 5000
+### Firebase Konfiguratsiya
+```javascript
+// NBT-KPI loyihasi
+apiKey: "AIzaSyAYhBShtJwKVPkiMYMBXaUXOQTrJSefHuk"
+projectId: "nbt-kpi"
 ```
 
-The workflow "Start application" is already configured and will start automatically.
+## Keyingi Vazifalar
+- [ ] Multi-step wizard formasini joriy etish
+- [ ] Real-time score preview qo'shish
+- [ ] Peer group benchmarking
+- [ ] Visual dashboard grafiklar
 
-### File Modifications
-All application files are static - no build process required. Simply edit HTML, CSS, or JavaScript files and refresh the browser.
+## Foydalanuvchi Sozlamalari
+- Til: O'zbek
+- Standartlar: ISO 45001, OSHA, ILO, O'zR Qonunlari
+- Port: 5000
 
-### Data Management
-- **Development Data**: Stored in Firebase Firestore (real-time sync)
-- **Local Cache**: Uses browser LocalStorage for offline support
-- **Export/Import**: Available through the UI (JSON, CSV, PDF formats)
-
-## User Roles & Permissions
-
-### 🏢 Management (Boshqaruv)
-**Permissions**:
-- ✅ View all companies
-- ✅ Edit all data
-- ✅ Add/remove companies
-- ✅ Export reports
-- ✅ Manage users
-
-### 👔 Supervisor (Nazoratchi)
-**Permissions**:
-- ✅ View assigned branches
-- ✅ Edit branch data
-- ✅ Add new branches
-- ✅ Export reports
-- ❌ Access other supervisors' data
-
-### 🏭 Company (Korxona)
-**Permissions**:
-- ✅ View own data
-- ✅ Enter/update KPIs
-- ❌ View other companies
-- ❌ Export functions
-
-## KPI Calculation
-
-The MM Index (Mehnat Muhofazasi Index) is calculated as:
-- Each KPI receives a score (0-100)
-- Weighted average based on department profile
-- Final score determines zone:
-  - 🟢 Green (80-100): Safe
-  - 🟡 Yellow (50-79): Needs improvement
-  - 🔴 Red (0-49): Dangerous
-
-Detailed formulas are documented in `CALCULATION.md`.
-
-## Browser Support
-- ✅ Chrome 90+
-- ✅ Firefox 88+
-- ✅ Safari 14+
-- ✅ Edge 90+
-
-## Deployment
-
-The project is configured for static hosting deployment:
-- **Type**: Static
-- **Public Directory**: Root (.)
-- **Files Served**: All HTML, CSS, JS, and assets
-
-To deploy, use the Replit deployment feature in the UI.
-
-## Troubleshooting
-
-### Data Not Saving
-- Check LocalStorage is enabled
-- Clear browser cache
-- Verify not in incognito mode
-- Check Firebase connectivity
-
-### Charts Not Displaying
-- Verify internet connection (Chart.js CDN)
-- Check browser console for errors
-- Refresh page (Ctrl+F5)
-
-### Firebase Connection Issues
-- Check internet connectivity
-- Verify Firebase configuration in app.js
-- Check browser console for error messages
-
-## Authentication System
-
-Added simple session-based login protection with 4 test accounts:
-- **admin** / admin123
-- **manager** / manager123
-- **supervisor** / super123
-- **user** / user123
-
-Users must log in before accessing the main dashboard. Session is stored in browser sessionStorage and persists across page refreshes until logout.
-
-## Recent Changes
-
-**2025-12-01**: Complete auth system implementation
-- Added login screen with custom styling
-- Implemented session-based authentication (auth.js)
-- Added logout button in header
-- Current username displayed in top-right
-- All 30 companies protected behind login
-
-**Earlier - 2025-12-01**: Project imported and set up in Replit environment
-- Configured Python HTTP server workflow on port 5000
-- Verified Firebase connectivity
-- Configured static deployment
-- Enhanced ltifr (accident severity) to 40% weight
-- Improved hierarchical filtering with name-based fallback matching
-
-## Version Information
-
-- **Version**: 2.0.0
-- **Last Updated**: 2025-12-01
-- **Language**: Uzbek (uz)
-- **License**: Custom for Uzbekistan enterprises
-
-## Additional Resources
-
-- `README.md`: Quick start guide
-- `GUIDE.md`: Comprehensive 1800+ line user manual
-- `CALCULATION.md`: Detailed KPI formulas and methodology
+---
+Oxirgi yangilanish: 2024-12-01
