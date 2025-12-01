@@ -284,7 +284,7 @@ function checkMinimumRequirements(scores, department) {
             metric: 'ltifr', 
             required: risk.minLTIFR, 
             actual: scores.ltifr,
-            penalty: 15  // 15 ball oyuti
+            penalty: 25  // QATTIQ: 25 ball oyuti (OLD: 15)
         });
     }
     
@@ -293,7 +293,7 @@ function checkMinimumRequirements(scores, department) {
             metric: 'trir', 
             required: risk.minTRIR, 
             actual: scores.trir,
-            penalty: 10
+            penalty: 20  // QATTIQ: 20 ball oyuti (OLD: 10)
         });
     }
     
@@ -303,7 +303,7 @@ function checkMinimumRequirements(scores, department) {
             metric: 'training', 
             required: risk.minTraining, 
             actual: scores.training,
-            penalty: 8
+            penalty: 15  // QATTIQ: 15 ball oyuti (OLD: 8)
         });
     }
     
@@ -312,7 +312,7 @@ function checkMinimumRequirements(scores, department) {
             metric: 'equipment', 
             required: risk.minEquipment, 
             actual: scores.equipment,
-            penalty: 8
+            penalty: 15  // QATTIQ: 15 ball oyuti (OLD: 8)
         });
     }
     
@@ -321,7 +321,7 @@ function checkMinimumRequirements(scores, department) {
             metric: 'ppe', 
             required: risk.minPPE, 
             actual: scores.ppe,
-            penalty: 10
+            penalty: 20  // QATTIQ: 20 ball oyuti (OLD: 10)
         });
     }
     
@@ -330,22 +330,23 @@ function checkMinimumRequirements(scores, department) {
             metric: 'raCoverage', 
             required: risk.minRACoverage, 
             actual: scores.raCoverage,
-            penalty: 7
+            penalty: 12  // QATTIQ: 12 ball oyuti (OLD: 7)
         });
     }
     
     return violations;
 }
 
-// Penalty → Score konversiyasi (xalqaro standart)
+// Penalty → Score konversiyasi (STRICT - xalqaro standart)
 function penaltyToScore(penalty) {
-    // Professional formula - linear interpolation
+    // STRICTER MODEL - Xavfga amal qilish
+    // Hodisa = jarima, jarima juda og'ir cezalanadi
     if (penalty === 0) return 100;
-    if (penalty <= 10) return Math.round(95 - (penalty - 1) * (15 / 9)); // 95-80 linear
-    if (penalty <= 50) return Math.round(80 - (penalty - 10) * (40 / 40)); // 80-40 linear
-    if (penalty <= 100) return Math.round(40 - (penalty - 50) * (30 / 50)); // 40-10 linear
-    if (penalty <= 200) return Math.round(10 - (penalty - 100) * (5 / 100)); // 10-5 linear
-    if (penalty <= 500) return Math.round(5 - (penalty - 200) * (5 / 300)); // 5-0 linear
+    if (penalty === 1) return 85;      // 1 hodisa jismlani = 85 (30% tushish)
+    if (penalty <= 5) return Math.round(85 - (penalty - 1) * (25 / 4)); // 85-60
+    if (penalty <= 20) return Math.round(60 - (penalty - 5) * (30 / 15)); // 60-30
+    if (penalty <= 50) return Math.round(30 - (penalty - 20) * (20 / 30)); // 30-10
+    if (penalty <= 100) return Math.round(10 - (penalty - 50) * (10 / 50)); // 10-0
     return 0;
 }
 
@@ -372,25 +373,25 @@ function normalizeKPI(value, kpiKey) {
             score = penaltyToScore(value);
             break;
 
-        case 'trir': // TRIR / Mikro-jarohatlar (10%)
+        case 'trir': // TRIR / Mikro-jarohatlar (10%) - STRICTER MODEL
             // 100 xodimga nisbatan jarohatlar
-            // 0% = 100 ball, uzluksiz kamayish
+            // TRIR 2.0+ = kritik - RED ZONE
             if (value === 0) {
                 score = 100;
+            } else if (value <= 0.2) {
+                score = 100 - (value * 50); // 100→90 (0→0.2) JUDA QATTIQ
             } else if (value <= 0.5) {
-                score = 100 - (value * 20); // 100→90 (0→0.5)
-            } else if (value <= 1) {
-                score = 90 - ((value - 0.5) * 20); // 90→80 (0.5→1)
-            } else if (value <= 2) {
-                score = 80 - ((value - 1) * 20); // 80→60 (1→2)
-            } else if (value <= 3) {
-                score = 60 - ((value - 2) * 20); // 60→40 (2→3)
-            } else if (value <= 5) {
-                score = 40 - ((value - 3) * 10); // 40→20 (3→5)
-            } else if (value <= 10) {
-                score = 20 - ((value - 5) * 4); // 20→0 (5→10) uzluksiz kamayish
+                score = 90 - ((value - 0.2) * 40); // 90→82 (0.2→0.5)
+            } else if (value <= 1.0) {
+                score = 82 - ((value - 0.5) * 24); // 82→70 (0.5→1.0)
+            } else if (value <= 2.0) {
+                score = 70 - ((value - 1.0) * 40); // 70→30 (1.0→2.0)
+            } else if (value <= 3.0) {
+                score = 30 - ((value - 2.0) * 15); // 30→15 (2.0→3.0)
+            } else if (value <= 5.0) {
+                score = 15 - ((value - 3.0) * 7.5); // 15→0 (3.0→5.0)
             } else {
-                score = 0; // 10+ = 0
+                score = 0; // 5+ = 0
             }
             break;
 

@@ -9,37 +9,37 @@ window.RISK_PROFILES = {
     'HIGH': {
         name: 'Juda Yuqori Xavf',
         coefficient: 1.0,        // 100% - To'liq talablar
-        minLTIFR: 10,           // Minimum standard
-        minTRIR: 5,
+        minLTIFR: 15,           // QATTIQ: Minimum 15 ball (OLD: 10)
+        minTRIR: 8,             // QATTIQ: Minimum 8 ball (OLD: 5)
         penaltyMultiplier: 1.5, // Xavfni neglect qilish uchun 50% oyuti
-        minTraining: 90,        // O'qitish 90% bo'lishi kerak
-        minEquipment: 85,       // Uskuna nazorati 85% bo'lishi kerak
-        minPPE: 90,             // PPE ta'minoti 90% bo'lishi kerak
-        minRACoverage: 80,      // Risk assessment 80% bo'lishi kerak
-        description: "Lokomotiv, Vagon, Yo'l - Mashina operatsi"
+        minTraining: 95,        // QATTIQ: 95% (OLD: 90%)
+        minEquipment: 90,       // QATTIQ: 90% (OLD: 85%)
+        minPPE: 95,             // QATTIQ: 95% (OLD: 90%)
+        minRACoverage: 85,      // QATTIQ: 85% (OLD: 80%)
+        description: "Lokomotiv, Vagon, Yo'l - Juda yuqori xavf"
     },
     'MEDIUM': {
         name: 'O\'rtacha Xavf',
         coefficient: 0.7,
-        minLTIFR: 5,
-        minTRIR: 3,
+        minLTIFR: 8,            // QATTIQ: 8 ball (OLD: 5)
+        minTRIR: 5,             // QATTIQ: 5 ball (OLD: 3)
         penaltyMultiplier: 1.2,
-        minTraining: 80,
-        minEquipment: 75,
-        minPPE: 80,
-        minRACoverage: 70,
+        minTraining: 85,        // QATTIQ: 85% (OLD: 80%)
+        minEquipment: 80,       // QATTIQ: 80% (OLD: 75%)
+        minPPE: 85,             // QATTIQ: 85% (OLD: 80%)
+        minRACoverage: 75,      // QATTIQ: 75% (OLD: 70%)
         description: "Elektr, Harakatni Boshqarish"
     },
     'LOW': {
         name: 'Past Xavf',
         coefficient: 0.4,
-        minLTIFR: 0,
-        minTRIR: 0,
+        minLTIFR: 3,            // QATTIQ: 3 ball (OLD: 0)
+        minTRIR: 2,             // QATTIQ: 2 ball (OLD: 0)
         penaltyMultiplier: 1.0,
-        minTraining: 60,
-        minEquipment: 50,
-        minPPE: 60,
-        minRACoverage: 50,
+        minTraining: 70,        // QATTIQ: 70% (OLD: 60%)
+        minEquipment: 60,       // QATTIQ: 60% (OLD: 50%)
+        minPPE: 70,             // QATTIQ: 70% (OLD: 60%)
+        minRACoverage: 60,      // QATTIQ: 60% (OLD: 50%)
         description: "Ofis ishlari, Zavodlar"
     }
 };
