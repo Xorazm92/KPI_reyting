@@ -49,7 +49,7 @@ const KPI_CONFIG = {
 let companies = [];
 let currentEditId = null;
 let comparisonCharts = {};
-let selectedOrganizationId = 'all'; // For hierarchical filtering
+let selectedOrganizationId = 'all'; // Default: Show all entered companies (with data)
 
 // Initialize Application
 // This initialization is moved to the main DOMContentLoaded at the end of the file
@@ -638,6 +638,7 @@ function loadLocal() {
 
 function refreshUI() {
     console.log("🔄 refreshUI: UI yangilanmoqda...");
+    calculateParentCompanyRatings(); // Calculate parent ratings from subsidiaries
     calculateRankings();
     initializeOrganizationFilter(); // Initialize filter selector
     renderDashboard();
@@ -760,6 +761,44 @@ function calculateRankings() {
     companies.sort((a, b) => b.overallIndex - a.overallIndex);
     companies.forEach((company, index) => {
         company.rank = index + 1;
+    });
+}
+
+// Calculate parent company ratings based on subsidiaries
+function calculateParentCompanyRatings() {
+    // Get all parent companies (supervisors)
+    const parents = companies.filter(c => c.level === 'supervisor');
+
+    parents.forEach(parent => {
+        // Find all subsidiaries of this parent
+        const subsidiaries = companies.filter(c => c.supervisorId === parent.id);
+
+        if (subsidiaries.length > 0) {
+            // Calculate average rating from subsidiaries
+            const totalIndex = subsidiaries.reduce((sum, sub) => sum + (sub.overallIndex || 0), 0);
+            const avgIndex = totalIndex / subsidiaries.length;
+
+            // Update parent's overall index
+            parent.overallIndex = avgIndex;
+            parent.zone = getZone(avgIndex).name;
+
+            // Also calculate average KPIs
+            if (subsidiaries[0].kpis) {
+                const avgKPIs = {};
+                const kpiKeys = Object.keys(subsidiaries[0].kpis);
+
+                kpiKeys.forEach(key => {
+                    const totalScore = subsidiaries.reduce((sum, sub) =>
+                        sum + (sub.kpis[key]?.score || 0), 0);
+                    avgKPIs[key] = {
+                        value: totalScore / subsidiaries.length,
+                        score: Math.round(totalScore / subsidiaries.length)
+                    };
+                });
+
+                parent.kpis = avgKPIs;
+            }
+        }
     });
 }
 
@@ -1309,16 +1348,14 @@ function updateParentSelect() {
 
     parentGroup.style.display = 'block';
 
-    // Use structure data (same as filter)
+    // Use EXACT SAME structure data as filter (UZ_RAILWAY_DATA)
     const structureData = window.UZ_RAILWAY_DATA || [];
 
-    // Clear and rebuild
+    // Clear and rebuild using SAME logic as createOrganizationSelector
     parentSelect.innerHTML = '<option value="">Tanlang...</option>';
 
     if (level === 'supervisor') {
-        // Supervisors can report to Management or other Supervisors
-
-        // Group 1: Management
+        // Supervisors can report to Management
         const management = structureData.filter(c => c.level === 'management');
         if (management.length > 0) {
             const group = document.createElement('optgroup');
@@ -1332,26 +1369,11 @@ function updateParentSelect() {
             parentSelect.appendChild(group);
         }
 
-        // Group 2: Top-level Supervisors (for nested supervisors)
-        const topSupervisors = structureData.filter(c => c.level === 'supervisor' && c.supervisorId === 'aj_head');
-        if (topSupervisors.length > 0) {
-            const group = document.createElement('optgroup');
-            group.label = "🏭 Yuqori Tashkilotlar";
-            topSupervisors.forEach(org => {
-                const option = document.createElement('option');
-                option.value = org.id;
-                option.textContent = `📍 ${org.name}`;
-                group.appendChild(option);
-            });
-            parentSelect.appendChild(group);
-        }
-
     } else if (level === 'subsidiary') {
-        // Subsidiaries report to Supervisors (MTUs, Depots, etc.)
-
+        // Subsidiaries report to Supervisors - USE EXACT SAME GROUPING AS FILTER
         const supervisors = structureData.filter(c => c.level === 'supervisor');
 
-        // Group by parent
+        // Group by parent (same as filter.js)
         const supervisorsByParent = {};
         supervisors.forEach(org => {
             const parentId = org.supervisorId || 'other';
@@ -1361,22 +1383,24 @@ function updateParentSelect() {
             supervisorsByParent[parentId].push(org);
         });
 
-        // Group 1: Direct AJ Supervisors
+        // Add "Yuqori Tashkilotlar" group
+        const group = document.createElement('optgroup');
+        group.label = "🏭 Yuqori Tashkilotlar";
+
+        // Direct AJ Supervisors
         if (supervisorsByParent['aj_head']) {
-            const group = document.createElement('optgroup');
-            group.label = "🏭 Yuqori Tashkilotlar";
             supervisorsByParent['aj_head'].forEach(org => {
                 const option = document.createElement('option');
                 option.value = org.id;
-                option.textContent = `📍 ${org.name}`;
+                option.textContent = `  📍 ${org.name}`;
                 group.appendChild(option);
             });
-            parentSelect.appendChild(group);
         }
 
-        // Group 2: Infrastructure MTUs (under infra_aj)
+        parentSelect.appendChild(group);
+
+        // Infrastructure MTUs (under infra_aj) - with separator
         if (supervisorsByParent['infra_aj']) {
-            // Add separator
             const separator = document.createElement('option');
             separator.disabled = true;
             separator.textContent = "─── Temiryo'linfratuzilma ───";
@@ -1385,25 +1409,9 @@ function updateParentSelect() {
             supervisorsByParent['infra_aj'].forEach(org => {
                 const option = document.createElement('option');
                 option.value = org.id;
-                option.textContent = `🚉 ${org.name}`;
+                option.textContent = `    🚉 ${org.name}`;
                 parentSelect.appendChild(option);
             });
-        }
-
-        // Group 3: Other Supervisors
-        const otherKeys = Object.keys(supervisorsByParent).filter(k => k !== 'aj_head' && k !== 'infra_aj');
-        if (otherKeys.length > 0) {
-            const group = document.createElement('optgroup');
-            group.label = "Boshqa Tashkilotlar";
-            otherKeys.forEach(key => {
-                supervisorsByParent[key].forEach(org => {
-                    const option = document.createElement('option');
-                    option.value = org.id;
-                    option.textContent = org.name;
-                    group.appendChild(option);
-                });
-            });
-            parentSelect.appendChild(group);
         }
     }
 }
@@ -1591,44 +1599,85 @@ document.addEventListener('DOMContentLoaded', () => {
 // ROBUST FILTERING & RENDERING SYSTEM
 // ===================================
 
-// 1. Internal Filtering Logic (No external dependency)
+// 1. Clear and Simple Filtering Logic
 function getFilteredCompanies() {
     const orgId = selectedOrganizationId;
-
-    if (!orgId || orgId === 'all') {
-        return companies;
-    }
-
-    // Find organization in REFERENCE data first (most reliable)
     const structureData = window.UZ_RAILWAY_DATA || [];
-    let selectedOrg = structureData.find(c => c.id === orgId);
 
-    // If not found in reference, try loaded companies
+    console.log(`🔍 Filter: "${orgId}", Companies count: ${companies.length}`);
+
+    // CASE 1: Show ALL companies (default)
+    if (!orgId || orgId === 'all') {
+        if (companies.length > 0) {
+            console.log(`✅ Showing all ${companies.length} companies from database`);
+            return companies;
+        }
+        console.log(`⚠️ No companies in database, showing structure (${structureData.length})`);
+        return structureData;
+    }
+
+    // CASE 2: Filter by organization
+    // First, try to find the organization in loaded companies
+    let selectedOrg = companies.find(c => c.id === orgId);
+
+    // If not found, try structure data
     if (!selectedOrg) {
-        selectedOrg = companies.find(c => c.id === orgId);
+        selectedOrg = structureData.find(c => c.id === orgId);
+        console.log(`📋 Organization "${orgId}" found in structure:`, selectedOrg ? 'Yes' : 'No');
     }
 
-    // Logic:
-    // 1. If 'aj_head' (O'zbekiston Temir Yo'llari) -> Show Supervisors (MTUs, Zavods)
-    if (selectedOrg && selectedOrg.id === 'aj_head') {
-        return companies.filter(c => c.level === 'supervisor' && c.supervisorId === 'aj_head');
+    // CASE 2a: "O'zbekiston Temir Yo'llari AJ" selected
+    // Show all supervisors (parent companies)
+    if (orgId === 'aj_head' || (selectedOrg && selectedOrg.id === 'aj_head')) {
+        const supervisors = companies.filter(c =>
+            c.level === 'supervisor' && c.supervisorId === 'aj_head'
+        );
+
+        if (supervisors.length > 0) {
+            console.log(`✅ Showing ${supervisors.length} supervisors under AJ`);
+            return supervisors;
+        }
+
+        // Fallback: show structure supervisors
+        const structureSupervisors = structureData.filter(c =>
+            c.level === 'supervisor' && c.supervisorId === 'aj_head'
+        );
+        console.log(`⚠️ No supervisors in database, showing ${structureSupervisors.length} from structure`);
+        return structureSupervisors;
     }
 
-    // 2. If Supervisor (MTU, Zavod) -> Show its Subsidiaries (Korxonalar)
-    // We check if the company's supervisorId matches the selected Org ID
-    // This works even if selectedOrg is not in the 'companies' list (but is in structureData)
+    // CASE 2b: Parent company (supervisor) selected
+    // Show all subsidiaries of this parent
     if (selectedOrg && selectedOrg.level === 'supervisor') {
-        return companies.filter(c => c.supervisorId === orgId);
+        const subsidiaries = companies.filter(c => c.supervisorId === orgId);
+
+        if (subsidiaries.length > 0) {
+            console.log(`✅ Showing ${subsidiaries.length} subsidiaries under "${selectedOrg.name}"`);
+            return subsidiaries;
+        }
+
+        // Fallback: show structure subsidiaries
+        const structureSubsidiaries = structureData.filter(c => c.supervisorId === orgId);
+        console.log(`⚠️ No subsidiaries in database, showing ${structureSubsidiaries.length} from structure`);
+        return structureSubsidiaries;
     }
 
-    // 3. Fallback: If we don't know the org type, try to find children anyway
+    // CASE 2c: Try to find children by supervisorId (fallback)
     const children = companies.filter(c => c.supervisorId === orgId);
-    if (children.length > 0) return children;
+    if (children.length > 0) {
+        console.log(`✅ Found ${children.length} children with supervisorId="${orgId}"`);
+        return children;
+    }
 
-    // 4. If it's a single company, show itself
-    if (selectedOrg) return [selectedOrg];
+    // CASE 3: Single company selected or no match
+    if (selectedOrg) {
+        console.log(`✅ Showing single company: "${selectedOrg.name}"`);
+        return [selectedOrg];
+    }
 
-    return companies;
+    // CASE 4: No match found
+    console.log(`⚠️ No match found for "${orgId}", showing all companies`);
+    return companies.length > 0 ? companies : structureData;
 }
 
 // 2. Main Render Function
@@ -1820,17 +1869,20 @@ function initializeOrganizationFilter() {
     const container = document.getElementById('organization-filter-container');
     if (!container) return;
 
-    // Use the REFERENCE data (UZ_RAILWAY_DATA) to build the structure/menu
-    // This ensures all MTUs and parent organizations are visible in the dropdown
-    // even if they don't exist in the loaded data yet.
+    // Use Firebase/Database companies if available, otherwise use structure
+    // This ensures filter shows actual saved organizations
     const structureData = window.UZ_RAILWAY_DATA || [];
+    const dataSource = companies.length > 0 ? companies : structureData;
 
-    // Create selector HTML using the full structure
-    container.innerHTML = createOrganizationSelector(structureData);
+    // Create selector HTML using actual database data
+    container.innerHTML = createOrganizationSelector(dataSource);
 
     // Attach event listener
     const select = document.getElementById('org-filter');
     if (select) {
+        // Set default value to 'all' to show all entered companies
+        select.value = selectedOrganizationId || 'all';
+
         select.addEventListener('change', (e) => {
             selectedOrganizationId = e.target.value;
             applyOrganizationFilter();

@@ -3,35 +3,41 @@
 // Make these globally accessible
 window.KPI_WEIGHTS = {
     'road': { // Йўл хўжалиги
-        'ltifr': 0.15, 'trir': 0.12, 'noincident': 0.06, 'training': 0.06, 'raCoverage': 0.10,
-        'nearMiss': 0.08, 'responseTime': 0.05, 'prevention': 0.04, 'ppe': 0.10, 'equipment': 0.08,
-        'inspection': 0.05, 'occupational': 0.04, 'compliance': 0.04, 'emergency': 0.02, 'violations': 0.01
+        'ltifr': 0.25, 'trir': 0.10, 'noincident': 0.05, 'training': 0.05, 'raCoverage': 0.08,
+        'nearMiss': 0.06, 'responseTime': 0.05, 'prevention': 0.04, 'ppe': 0.08, 'equipment': 0.06,
+        'inspection': 0.05, 'occupational': 0.03, 'compliance': 0.04, 'emergency': 0.02, 'violations': 0.04
     },
     'wagon': { // Вагон хўжалиги
-        'ltifr': 0.14, 'trir': 0.12, 'noincident': 0.07, 'training': 0.07, 'raCoverage': 0.10,
-        'nearMiss': 0.08, 'responseTime': 0.04, 'prevention': 0.04, 'ppe': 0.06, 'equipment': 0.10,
-        'inspection': 0.05, 'occupational': 0.06, 'compliance': 0.04, 'emergency': 0.02, 'violations': 0.01
+        'ltifr': 0.25, 'trir': 0.10, 'noincident': 0.05, 'training': 0.06, 'raCoverage': 0.08,
+        'nearMiss': 0.06, 'responseTime': 0.04, 'prevention': 0.04, 'ppe': 0.06, 'equipment': 0.08,
+        'inspection': 0.05, 'occupational': 0.05, 'compliance': 0.04, 'emergency': 0.02, 'violations': 0.02
+    },
+    'locomotive': { // Lokomotiv xo'jaligi
+        'ltifr': 0.30, 'trir': 0.10, 'noincident': 0.05, 'training': 0.05, 'raCoverage': 0.08,
+        'nearMiss': 0.05, 'responseTime': 0.05, 'prevention': 0.05, 'ppe': 0.05, 'equipment': 0.10,
+        'inspection': 0.05, 'occupational': 0.02, 'compliance': 0.03, 'emergency': 0.01, 'violations': 0.01
     },
     'electric': { // Электр ва Алоқа
-        'ltifr': 0.12, 'trir': 0.10, 'noincident': 0.06, 'training': 0.10, 'raCoverage': 0.10,
-        'nearMiss': 0.07, 'responseTime': 0.05, 'prevention': 0.04, 'ppe': 0.10, 'equipment': 0.06,
-        'inspection': 0.05, 'occupational': 0.04, 'compliance': 0.08, 'emergency': 0.02, 'violations': 0.01
+        'ltifr': 0.25, 'trir': 0.08, 'noincident': 0.05, 'training': 0.08, 'raCoverage': 0.08,
+        'nearMiss': 0.06, 'responseTime': 0.05, 'prevention': 0.04, 'ppe': 0.08, 'equipment': 0.05,
+        'inspection': 0.05, 'occupational': 0.03, 'compliance': 0.06, 'emergency': 0.02, 'violations': 0.02
     },
     'traffic': { // Ҳаракатни Бошқариш
-        'ltifr': 0.05, 'trir': 0.05, 'noincident': 0.10, 'training': 0.12, 'raCoverage': 0.06,
-        'nearMiss': 0.12, 'responseTime': 0.10, 'prevention': 0.05, 'ppe': 0.02, 'equipment': 0.01,
-        'inspection': 0.08, 'occupational': 0.01, 'compliance': 0.12, 'emergency': 0.06, 'violations': 0.05
+        'ltifr': 0.20, 'trir': 0.05, 'noincident': 0.08, 'training': 0.10, 'raCoverage': 0.05,
+        'nearMiss': 0.10, 'responseTime': 0.08, 'prevention': 0.05, 'ppe': 0.02, 'equipment': 0.02,
+        'inspection': 0.08, 'occupational': 0.02, 'compliance': 0.10, 'emergency': 0.04, 'violations': 0.01
     },
     'factory': { // Заводлар
-        'ltifr': 0.15, 'trir': 0.12, 'noincident': 0.06, 'training': 0.06, 'raCoverage': 0.10,
-        'nearMiss': 0.07, 'responseTime': 0.04, 'prevention': 0.05, 'ppe': 0.07, 'equipment': 0.10,
-        'inspection': 0.05, 'occupational': 0.05, 'compliance': 0.04, 'emergency': 0.03, 'violations': 0.01
+        'ltifr': 0.25, 'trir': 0.10, 'noincident': 0.05, 'training': 0.05, 'raCoverage': 0.08,
+        'nearMiss': 0.06, 'responseTime': 0.04, 'prevention': 0.05, 'ppe': 0.06, 'equipment': 0.08,
+        'inspection': 0.05, 'occupational': 0.04, 'compliance': 0.04, 'emergency': 0.03, 'violations': 0.02
     }
 };
 
 window.DEPARTMENT_PROFILES = [
     { id: 'road', name: 'Йўл хўжалиги (Физик хавф юқори)' },
     { id: 'wagon', name: 'Вагон хўжалиги (Технологик хавф)' },
+    { id: 'locomotive', name: 'Lokomotiv xo\'jaligi (Yuqori xavf)' },
     { id: 'electric', name: 'Электр ва Алоқа (Электрохавфсизлик)' },
     { id: 'traffic', name: 'Ҳаракатни Бошқариш (Инсон омили хавфи)' },
     { id: 'factory', name: 'Заводлар (Саноат хавфсизлиги)' }

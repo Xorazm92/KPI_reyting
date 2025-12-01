@@ -211,7 +211,7 @@
                                         </div>
                                         <div class="sub-input-item">
                                             <span class="sub-label label-severe">
-                                                <i class="icon-warning"></i> Og'ir (×50)
+                                                <i class="icon-warning"></i> Og'ir-o'rta Og'ir (×50)
                                             </span>
                                             <input type="number" id="input-severe" min="0" value="0"
                                                 class="input-severe">
@@ -224,7 +224,7 @@
                                         </div>
                                         <div class="sub-input-item">
                                             <span class="sub-label label-light">
-                                                <i class="icon-info"></i> Yengil (×10)
+                                                <i class="icon-info"></i> Og'ir bo'lmagan (Yengil) (×10)
                                             </span>
                                             <input type="number" id="input-light" min="0" value="0" class="input-light">
                                         </div>
@@ -674,6 +674,7 @@
             const PROFILES = [
                 { id: 'road', name: 'Йўл хўжалиги (Физик хавф юқори)' },
                 { id: 'wagon', name: 'Вагон хўжалиги (Технологик хавф)' },
+                { id: 'locomotive', name: 'Lokomotiv xo\'jaligi (Yuqori xavf)' },
                 { id: 'electric', name: 'Электр ва Алоқа (Электрохавфсизлик)' },
                 { id: 'traffic', name: 'Ҳаракатни Бошқариш (Инсон омили хавфи)' },
                 { id: 'factory', name: 'Заводлар (Саноат хавфсизлиги)' }
@@ -691,6 +692,7 @@
                 });
             }
 
+
             // ==========================================
             // 2. POPULATE PARENT ORGANIZATIONS
             // ==========================================
@@ -698,20 +700,8 @@
             const levelSelect = document.getElementById('company-level');
             const parentGroup = document.getElementById('parent-select-group');
 
-            // Hardcoded parent data to ensure availability
-            const PARENT_COMPANIES = [
-                { id: 'aj_head', name: "O'zbekiston Temir Yo'llari AJ", level: 'management' },
-                { id: 'infra_aj', name: "\"Temiryo'linfratuzilma\" AJ", level: 'supervisor' },
-                { id: 'yolovchi_aj', name: "\"O'ztemiryo'lyo'lovchi\" AJ", level: 'supervisor' },
-                { id: 'kargo_aj', name: "\"O'ztemiryo'lkargo\" AJ", level: 'supervisor' },
-                { id: 'toshkent_mtu', name: "Toshkent MTU", level: 'supervisor' },
-                { id: 'qoqon_mtu', name: "Qo'qon MTU", level: 'supervisor' },
-                { id: 'buxoro_mtu', name: "Buxoro MTU", level: 'supervisor' },
-                { id: 'qongirot_mtu', name: "Qo'ng'irot MTU", level: 'supervisor' },
-                { id: 'qarshi_mtu', name: "Qarshi MTU", level: 'supervisor' },
-                { id: 'termiz_mtu', name: "Termiz MTU", level: 'supervisor' }
-            ];
-
+            // USE SAME DATA AS data.js (UZ_RAILWAY_DATA)
+            // This ensures consistency between filter dropdown and parent dropdown
             function forceUpdateParent() {
                 if (!levelSelect || !parentSelect) return;
 
@@ -728,11 +718,16 @@
 
                 if (parentGroup) parentGroup.style.display = 'block';
 
+                // Get data from window.UZ_RAILWAY_DATA (loaded from data.js)
+                const structureData = window.UZ_RAILWAY_DATA || [];
                 let options = [];
+
                 if (level === 'supervisor') {
-                    options = PARENT_COMPANIES.filter(c => c.level === 'management');
+                    // Supervisors can report to Management
+                    options = structureData.filter(c => c.level === 'management');
                 } else if (level === 'subsidiary') {
-                    options = PARENT_COMPANIES.filter(c => c.level === 'supervisor');
+                    // Subsidiaries report to Supervisors
+                    options = structureData.filter(c => c.level === 'supervisor');
                 }
 
                 options.sort((a, b) => a.name.localeCompare(b.name));
@@ -743,15 +738,11 @@
                     option.textContent = p.name;
                     parentSelect.appendChild(option);
                 });
-                console.log('FORCE PARENT: Populated ' + options.length + ' options');
+                console.log('FORCE PARENT: Populated ' + options.length + ' options from UZ_RAILWAY_DATA');
             }
 
             // Attach listener
             if (levelSelect) {
-                // Remove old listeners by cloning (optional but safer)
-                // const newLevelSelect = levelSelect.cloneNode(true);
-                // levelSelect.parentNode.replaceChild(newLevelSelect, levelSelect);
-
                 levelSelect.addEventListener('change', forceUpdateParent);
 
                 // Initial call with delay to override any other scripts
