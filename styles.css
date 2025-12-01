@@ -1449,3 +1449,536 @@ body {
         transform: translateY(0);
     }
 }
+
+/* ===================================
+   YAXSHILANGAN UI/UX STILLARI
+   =================================== */
+
+/* Yaxshilangan Filter Container */
+.filter-container {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-lg);
+    border: 2px solid var(--border);
+    box-shadow: var(--shadow);
+}
+
+.organization-selector {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-lg);
+    flex-wrap: wrap;
+}
+
+.organization-selector label {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-weight: 700;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    white-space: nowrap;
+}
+
+.org-select {
+    flex: 1;
+    min-width: 350px;
+    max-width: 600px;
+    padding: 14px 20px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    font-weight: 500;
+    font-family: var(--font-primary);
+    background: white;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.org-select:hover {
+    border-color: var(--primary);
+    box-shadow: 0 4px 12px rgba(245, 100, 0, 0.15);
+}
+
+.org-select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(245, 100, 0, 0.15);
+}
+
+.org-select optgroup {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--primary);
+    background: #f8f9fa;
+    padding: 8px 0;
+}
+
+.org-select option {
+    padding: 10px 16px;
+    font-size: 0.95rem;
+}
+
+/* Yaxshilangan Ranking Context */
+.ranking-context {
+    background: linear-gradient(135deg, rgba(245, 100, 0, 0.08) 0%, rgba(52, 152, 219, 0.08) 100%);
+    border: 1px solid rgba(245, 100, 0, 0.2);
+    border-left: 5px solid var(--primary);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+    border-radius: var(--radius-md);
+    display: none;
+}
+
+.ranking-context.active {
+    display: block;
+    animation: slideDown 0.4s ease;
+}
+
+.ranking-context h3 {
+    font-size: 1.3rem;
+    color: var(--primary-dark);
+    margin-bottom: var(--spacing-sm);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.ranking-context p {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.context-badge {
+    background: var(--primary);
+    color: white;
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+/* Yaxshilangan Jadval Stillari */
+.ranking-table-container {
+    background: white;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border);
+}
+
+.ranking-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.ranking-table thead {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+}
+
+.ranking-table thead th {
+    color: white;
+    font-weight: 700;
+    padding: 18px 16px;
+    text-align: left;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: none;
+}
+
+.ranking-table tbody tr {
+    transition: all 0.25s ease;
+    border-bottom: 1px solid var(--border);
+}
+
+.ranking-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.ranking-table tbody tr:hover {
+    background: linear-gradient(135deg, rgba(245, 100, 0, 0.05) 0%, rgba(245, 100, 0, 0.02) 100%);
+    transform: scale(1.005);
+}
+
+.ranking-table tbody td {
+    padding: 16px;
+    vertical-align: middle;
+}
+
+/* Rank Badge */
+.rank-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-weight: 800;
+    font-size: 1.1rem;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 2px solid var(--border);
+}
+
+.rank-badge.top3 {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    border: none;
+    box-shadow: 0 3px 8px rgba(245, 100, 0, 0.35);
+}
+
+/* Company Info Cell */
+.company-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.company-name {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--text-primary);
+}
+
+.company-meta {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+/* Index Display */
+.index-display {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--primary);
+}
+
+/* Zone Badge Yaxshilangan */
+.zone-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 25px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.zone-badge.green {
+    background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(45, 159, 93, 0.3);
+}
+
+.zone-badge.yellow {
+    background: linear-gradient(135deg, var(--yellow) 0%, var(--yellow-dark) 100%);
+    color: var(--text-primary);
+    box-shadow: 0 2px 8px rgba(255, 184, 77, 0.3);
+}
+
+.zone-badge.red {
+    background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+}
+
+/* Action Buttons */
+.action-btns {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: white;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+}
+
+.btn-icon:hover {
+    background: var(--primary);
+    border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(245, 100, 0, 0.3);
+}
+
+/* Podium Yaxshilangan */
+.podium-section {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+    padding: var(--spacing-xl) var(--spacing-lg);
+    background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+    border-radius: var(--radius-xl);
+    border: 2px solid var(--border);
+    box-shadow: var(--shadow-xl);
+    position: relative;
+    overflow: hidden;
+}
+
+.podium-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, var(--green), var(--yellow), var(--primary));
+}
+
+.podium-place {
+    flex: 1;
+    max-width: 280px;
+    text-align: center;
+    padding: var(--spacing-md);
+    border-radius: var(--radius-lg);
+    transition: all 0.3s ease;
+}
+
+.podium-place:hover {
+    transform: translateY(-8px);
+}
+
+.podium-place.first {
+    order: 2;
+    background: linear-gradient(180deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 215, 0, 0.05) 100%);
+    border: 2px solid rgba(255, 215, 0, 0.3);
+}
+
+.podium-place.second {
+    order: 1;
+    background: linear-gradient(180deg, rgba(192, 192, 192, 0.15) 0%, rgba(192, 192, 192, 0.05) 100%);
+    border: 2px solid rgba(192, 192, 192, 0.3);
+}
+
+.podium-place.third {
+    order: 3;
+    background: linear-gradient(180deg, rgba(205, 127, 50, 0.15) 0%, rgba(205, 127, 50, 0.05) 100%);
+    border: 2px solid rgba(205, 127, 50, 0.3);
+}
+
+.podium-medal {
+    font-size: 4.5rem;
+    margin-bottom: var(--spacing-sm);
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+}
+
+.podium-company {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-xs);
+    line-height: 1.3;
+}
+
+.podium-index {
+    font-size: 2.2rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: var(--spacing-sm);
+}
+
+/* Yaxshilangan Statistics Cards */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-xl);
+}
+
+@media (max-width: 1200px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.stat-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg) var(--spacing-md);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    border: 2px solid var(--border);
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+    background: var(--border);
+}
+
+.stat-card.green::before { background: var(--green); }
+.stat-card.yellow::before { background: var(--yellow); }
+.stat-card.red::before { background: var(--red); }
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-xl);
+}
+
+.stat-icon {
+    font-size: 2.8rem;
+    opacity: 0.9;
+}
+
+.stat-value {
+    font-size: 2.8rem;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--text-primary);
+}
+
+/* Risk Analysis Dashboard */
+.risk-dashboard {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-lg);
+    padding: var(--spacing-lg);
+}
+
+@media (max-width: 992px) {
+    .risk-dashboard {
+        grid-template-columns: 1fr;
+    }
+}
+
+.risk-column {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow);
+    border: 2px solid var(--border);
+}
+
+.risk-column h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 2px solid var(--border);
+}
+
+.red-column { border-left: 5px solid var(--red); }
+.yellow-column { border-left: 5px solid var(--yellow); }
+.green-column { border-left: 5px solid var(--green); }
+
+.risk-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.risk-card {
+    background: var(--bg-secondary);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    transition: all 0.25s ease;
+}
+
+.risk-card:hover {
+    box-shadow: var(--shadow);
+    transform: translateX(4px);
+}
+
+.risk-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-sm);
+}
+
+.risk-header strong {
+    font-size: 0.95rem;
+    color: var(--text-primary);
+}
+
+.risk-score {
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--primary);
+}
+
+.worst-kpis {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.worst-kpis ul {
+    margin-top: 6px;
+    padding-left: 16px;
+}
+
+.worst-kpis li {
+    margin-bottom: 4px;
+}
+
+.empty-msg {
+    text-align: center;
+    color: var(--text-muted);
+    font-style: italic;
+    padding: var(--spacing-md);
+}
+
+/* Responsive Improvements */
+@media (max-width: 768px) {
+    .organization-selector {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .org-select {
+        min-width: 100%;
+    }
+    
+    .podium-section {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .podium-place {
+        order: unset !important;
+        max-width: 100%;
+    }
+    
+    .podium-place.first {
+        order: 1 !important;
+    }
+}

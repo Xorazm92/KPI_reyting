@@ -24,23 +24,25 @@ try {
 
 // ===================================
 // KPI Configuration & Weights
+// O'zbekiston mehnat qonunchiligiga muvofiq vaznlar
+// Baxtsiz hodisalar (ltifr) - ENG MUHIM ko'rsatkich
 // ===================================
 const KPI_CONFIG = {
-    ltifr: { name: "Baxtsiz hodisalar (Og'irlik)", weight: 0.12, lowerIsBetter: true },
-    trir: { name: "Mikro-jarohatlar", weight: 0.10, lowerIsBetter: true },
-    noincident: { name: "Noincident kunlar", weight: 0.08, lowerIsBetter: false },
-    training: { name: "Majburiy o'quv qamrovi", weight: 0.06, lowerIsBetter: false },
-    raCoverage: { name: "Xavfni baholash", weight: 0.08, lowerIsBetter: false },
-    nearMiss: { name: "Xabarlar va Takliflar", weight: 0.06, lowerIsBetter: false },
-    responseTime: { name: "Murojaatga reaksiya", weight: 0.08, lowerIsBetter: false }, // Changed to false (higher % is better)
-    prevention: { name: "Profilaktika", weight: 0.08, lowerIsBetter: false },
-    ppe: { name: "SHHV ta'minoti", weight: 0.06, lowerIsBetter: false },
+    ltifr: { name: "Baxtsiz hodisalar (Og'irlik)", weight: 0.40, lowerIsBetter: true, critical: true },
+    trir: { name: "Mikro-jarohatlar", weight: 0.10, lowerIsBetter: true, critical: true },
+    noincident: { name: "Bexavfsiz kunlar", weight: 0.06, lowerIsBetter: false },
+    training: { name: "Majburiy o'quv qamrovi", weight: 0.05, lowerIsBetter: false },
+    raCoverage: { name: "Xavfni baholash", weight: 0.05, lowerIsBetter: false },
+    nearMiss: { name: "Xabarlar va Takliflar", weight: 0.04, lowerIsBetter: false },
+    responseTime: { name: "Murojaatga reaksiya", weight: 0.04, lowerIsBetter: false },
+    prevention: { name: "Profilaktika (Moliya)", weight: 0.04, lowerIsBetter: false },
+    ppe: { name: "SHHV ta'minoti", weight: 0.05, lowerIsBetter: false },
     equipment: { name: "Uskuna nazorati", weight: 0.05, lowerIsBetter: false },
-    inspection: { name: "Nazorat rejasi ijrosi", weight: 0.08, lowerIsBetter: false },
-    occupational: { name: "Kasbiy kasallik", weight: 0.05, lowerIsBetter: true },
-    compliance: { name: "Audit samaradorligi", weight: 0.05, lowerIsBetter: false },
-    emergency: { name: "Avariya tayyorgarligi", weight: 0.05, lowerIsBetter: false },
-    violations: { name: "Intizomiy buzilishlar", weight: 0.08, lowerIsBetter: true }
+    inspection: { name: "Nazorat rejasi ijrosi", weight: 0.03, lowerIsBetter: false },
+    occupational: { name: "Kasbiy kasallik", weight: 0.03, lowerIsBetter: true },
+    compliance: { name: "Audit samaradorligi", weight: 0.02, lowerIsBetter: false },
+    emergency: { name: "Avariya tayyorgarligi", weight: 0.02, lowerIsBetter: false },
+    violations: { name: "Intizomiy buzilishlar", weight: 0.02, lowerIsBetter: true }
 };
 
 // ===================================
@@ -164,18 +166,54 @@ class KPICalculator {
 
 // ===================================
 // Normalization Functions
+// O'zbekiston standartlariga moslashtirilgan normalizatsiya
 // ===================================
 function normalizeKPI(value, kpiKey) {
     let score = 0;
 
     switch (kpiKey) {
-        case 'ltifr': // Accident Severity
-            score = Math.max(0, 100 - value);
+        case 'ltifr': // Baxtsiz hodisalar og'irligi - ENG MUHIM
+            // Jarima ballari: O'lim = 100, Og'ir = 50, Guruh = 40, Yengil = 10
+            // Normalizatsiya: eksponensial kamayish bilan - katta diapazonni qamrab oladi
+            // 0 ball = 100 score (mukammal)
+            // 500+ ball = ~0 score (juda yomon - bir nechta o'lim yoki ko'p og'ir hodisalar)
+            if (value === 0) {
+                score = 100; // Hech qanday hodisa yo'q - mukammal
+            } else if (value <= 10) {
+                score = 100 - (value * 2); // 80-100 oralig'i (yengil)
+            } else if (value <= 50) {
+                score = 80 - ((value - 10) * 1.0); // 40-80 oralig'i (o'rtacha)
+            } else if (value <= 100) {
+                score = 40 - ((value - 50) * 0.6); // 10-40 oralig'i (og'ir)
+            } else if (value <= 200) {
+                score = 10 - ((value - 100) * 0.05); // 5-10 oralig'i (juda og'ir)
+            } else if (value <= 500) {
+                score = 5 - ((value - 200) * 0.0167); // 0-5 oralig'i (kritik)
+            } else {
+                score = 0; // Ko'p o'limlar yoki og'ir hodisalar
+            }
             break;
-        case 'trir': // Micro Injuries
-            score = Math.max(0, 100 - (value * 20));
+
+        case 'trir': // Mikro-jarohatlar (100 xodimga nisbatan)
+            // 0% = 100 score, 5%+ = 0 score
+            if (value === 0) {
+                score = 100;
+            } else if (value <= 1) {
+                score = 95 - (value * 15);
+            } else if (value <= 3) {
+                score = 80 - ((value - 1) * 20);
+            } else if (value <= 5) {
+                score = 40 - ((value - 3) * 20);
+            } else {
+                score = 0;
+            }
             break;
-        case 'noincident':
+
+        case 'noincident': // Bexavfsiz kunlar (% of 365)
+            // 100% = 365 kun bexavfsiz
+            score = Math.min(100, value);
+            break;
+
         case 'training':
         case 'raCoverage':
         case 'ppe':
@@ -183,24 +221,64 @@ function normalizeKPI(value, kpiKey) {
         case 'inspection':
         case 'compliance':
         case 'emergency':
-        case 'responseTime': // Now it's % closed on time
-            score = Math.min(100, value);
+        case 'responseTime':
+            // Foizli ko'rsatkichlar - to'g'ridan-to'g'ri ball
+            score = Math.min(100, Math.max(0, value));
             break;
-        case 'nearMiss': // Reports & Proposals
-            // Target: 10 reports per 100 employees per month (120 per year)
-            // Value is rate per 100 employees
-            score = Math.min(100, (value / 120) * 100);
+
+        case 'nearMiss': // Xabarlar va Takliflar
+            // Target: 100 xodimga 5 ta xabar oyiga (60 yillik)
+            // Faol xodimlar = yaxshi xavfsizlik madaniyati
+            if (value >= 60) {
+                score = 100;
+            } else if (value >= 30) {
+                score = 70 + ((value - 30) / 30) * 30;
+            } else if (value >= 10) {
+                score = 40 + ((value - 10) / 20) * 30;
+            } else {
+                score = (value / 10) * 40;
+            }
             break;
-        case 'prevention':
-            if (value >= 2 && value <= 5) score = 100;
-            else if (value < 2) score = (value / 2) * 100;
-            else score = Math.max(0, 100 - ((value - 5) * 10));
+
+        case 'prevention': // MM xarajatlari / Jami xarajatlar (%)
+            // Ideal: 2-5% - Bu sohaga etarli mablag' ajratilmoqda
+            if (value >= 2 && value <= 5) {
+                score = 100;
+            } else if (value >= 1 && value < 2) {
+                score = 60 + ((value - 1) * 40);
+            } else if (value > 5 && value <= 8) {
+                score = 100 - ((value - 5) * 10);
+            } else if (value < 1) {
+                score = value * 60;
+            } else {
+                score = Math.max(0, 70 - ((value - 8) * 10));
+            }
             break;
-        case 'occupational':
-            score = Math.max(0, 100 - (value * 50));
+
+        case 'occupational': // Kasbiy kasalliklar soni
+            // 0 = 100, har bir kasallik uchun katta jarima
+            if (value === 0) {
+                score = 100;
+            } else if (value === 1) {
+                score = 60;
+            } else if (value === 2) {
+                score = 30;
+            } else {
+                score = Math.max(0, 30 - (value - 2) * 15);
+            }
             break;
-        case 'violations': // Discipline Index
-            score = Math.max(0, 100 - value);
+
+        case 'violations': // Intizomiy buzilishlar indeksi
+            // 100 xodimga nisbatan jarima ballari
+            if (value === 0) {
+                score = 100;
+            } else if (value <= 5) {
+                score = 90 - (value * 8);
+            } else if (value <= 15) {
+                score = 50 - ((value - 5) * 4);
+            } else {
+                score = Math.max(0, 10 - ((value - 15) * 1));
+            }
             break;
     }
 
@@ -808,12 +886,16 @@ function calculateParentCompanyRatings() {
 // OLD renderDashboard REMOVED - Using robust version below (line ~1633)
 
 function renderStatistics(displayCompanies = companies) {
-    document.getElementById('total-companies').textContent = companies.length;
+    // Faqat ko'rsatilayotgan korxonalar sonini ko'rsat
+    const companyCount = displayCompanies.length;
+    document.getElementById('total-companies').textContent = companyCount;
 
-    // Calculate zones dynamically
-    const greenCount = companies.filter(c => getZone(c.overallIndex).name === 'green').length;
-    const yellowCount = companies.filter(c => getZone(c.overallIndex).name === 'yellow').length;
-    const redCount = companies.filter(c => getZone(c.overallIndex).name === 'red').length;
+    // Calculate zones only from displayed companies with data
+    const companiesWithData = displayCompanies.filter(c => c.overallIndex > 0);
+    
+    const greenCount = companiesWithData.filter(c => getZone(c.overallIndex).name === 'green').length;
+    const yellowCount = companiesWithData.filter(c => getZone(c.overallIndex).name === 'yellow').length;
+    const redCount = companiesWithData.filter(c => getZone(c.overallIndex).name === 'red').length;
 
     document.getElementById('green-zone-count').textContent = greenCount;
     document.getElementById('yellow-zone-count').textContent = yellowCount;
@@ -1600,84 +1682,159 @@ document.addEventListener('DOMContentLoaded', () => {
 // ===================================
 
 // 1. Clear and Simple Filtering Logic
+// Faqat ma'lumot kiritilgan korxonalarni ko'rsatadi - ierarxik drill-down bilan
 function getFilteredCompanies() {
     const orgId = selectedOrganizationId;
     const structureData = window.UZ_RAILWAY_DATA || [];
 
     console.log(`🔍 Filter: "${orgId}", Companies count: ${companies.length}`);
 
-    // CASE 1: Show ALL companies (default)
-    if (!orgId || orgId === 'all') {
-        if (companies.length > 0) {
-            console.log(`✅ Showing all ${companies.length} companies from database`);
-            return companies;
+    // Helper: Ma'lumot kiritilganligini tekshirish
+    const hasData = (company) => {
+        if (!company) return false;
+        if ((company.overallIndex || 0) > 0) return true;
+        if (company.kpis) {
+            return Object.values(company.kpis).some(kpi => (kpi.score || 0) > 0);
         }
-        console.log(`⚠️ No companies in database, showing structure (${structureData.length})`);
-        return structureData;
+        return false;
+    };
+
+    // Helper: Ota korxona yoki bolalarida ma'lumot bormi
+    const hasDataOrChildren = (parentId) => {
+        // Parent o'zida ma'lumot bor
+        const parent = companies.find(c => c.id === parentId);
+        if (parent && hasData(parent)) return true;
+        // Yoki bolalarida ma'lumot bor
+        return companies.some(c => c.supervisorId === parentId && hasData(c));
+    };
+
+    // Ma'lumot kiritilgan korxonalarni ajratib olamiz
+    const companiesWithData = companies.filter(hasData);
+    console.log(`📊 Companies with data: ${companiesWithData.length}`);
+
+    // CASE 1: Show ALL companies with data (default) - sorted by index
+    if (!orgId || orgId === 'all') {
+        if (companiesWithData.length > 0) {
+            console.log(`✅ Showing all ${companiesWithData.length} companies with data`);
+            return companiesWithData.sort((a, b) => (b.overallIndex || 0) - (a.overallIndex || 0));
+        }
+        console.log(`⚠️ No companies with data`);
+        return [];
     }
 
     // CASE 2: Filter by organization
-    // First, try to find the organization in loaded companies
-    let selectedOrg = companies.find(c => c.id === orgId);
-
-    // If not found, try structure data
+    // Birinchi structureData dan, keyin companies dan qidiramiz
+    let selectedOrg = structureData.find(c => c.id === orgId);
     if (!selectedOrg) {
-        selectedOrg = structureData.find(c => c.id === orgId);
-        console.log(`📋 Organization "${orgId}" found in structure:`, selectedOrg ? 'Yes' : 'No');
+        selectedOrg = companies.find(c => c.id === orgId);
     }
 
-    // CASE 2a: "O'zbekiston Temir Yo'llari AJ" selected
-    // Show all supervisors (parent companies)
-    if (orgId === 'aj_head' || (selectedOrg && selectedOrg.id === 'aj_head')) {
-        const supervisors = companies.filter(c =>
-            c.level === 'supervisor' && c.supervisorId === 'aj_head'
-        );
-
-        if (supervisors.length > 0) {
-            console.log(`✅ Showing ${supervisors.length} supervisors under AJ`);
-            return supervisors;
-        }
-
-        // Fallback: show structure supervisors
+    // CASE 2a: "O'zbekiston Temir Yo'llari AJ" selected - show supervisors (structure-based)
+    if (orgId === 'aj_head') {
+        // Structure dan supervisorlarni olamiz va bolalari bor supervisorlarni filtrlash
         const structureSupervisors = structureData.filter(c =>
             c.level === 'supervisor' && c.supervisorId === 'aj_head'
         );
-        console.log(`⚠️ No supervisors in database, showing ${structureSupervisors.length} from structure`);
-        return structureSupervisors;
+        
+        // Har bir supervisor uchun bolalarida ma'lumot bormi tekshiramiz
+        const supervisorsWithChildren = structureSupervisors.filter(sup => 
+            hasDataOrChildren(sup.id)
+        );
+        
+        // Companies dan supervisorlar bilan birlashtirish (aggregate data uchun)
+        const result = supervisorsWithChildren.map(structSup => {
+            const liveSup = companies.find(c => c.id === structSup.id);
+            if (liveSup && hasData(liveSup)) {
+                return liveSup; // Live data bor
+            }
+            // Bolalardan aggregate qilamiz
+            const children = companiesWithData.filter(c => c.supervisorId === structSup.id);
+            if (children.length > 0) {
+                const avgIndex = children.reduce((sum, c) => sum + (c.overallIndex || 0), 0) / children.length;
+                return { ...structSup, overallIndex: Math.round(avgIndex), aggregated: true, childCount: children.length };
+            }
+            return null;
+        }).filter(Boolean);
+        
+        console.log(`✅ Showing ${result.length} supervisors under AJ`);
+        return result.sort((a, b) => (b.overallIndex || 0) - (a.overallIndex || 0));
     }
 
-    // CASE 2b: Parent company (supervisor) selected
-    // Show all subsidiaries of this parent
-    if (selectedOrg && selectedOrg.level === 'supervisor') {
-        const subsidiaries = companies.filter(c => c.supervisorId === orgId);
+    // CASE 2b: Parent company (supervisor/MTU) selected - show children with data
+    if (selectedOrg && (selectedOrg.level === 'supervisor' || selectedOrg.level === 'management')) {
+        // 1. Avval supervisorId bo'yicha to'g'ridan-to'g'ri qidiramiz
+        let childrenWithData = companiesWithData.filter(c => c.supervisorId === orgId);
 
-        if (subsidiaries.length > 0) {
-            console.log(`✅ Showing ${subsidiaries.length} subsidiaries under "${selectedOrg.name}"`);
-            return subsidiaries;
+        // 2. Agar supervisorId bo'yicha topilmasa, nom bo'yicha qidiramiz
+        if (childrenWithData.length === 0) {
+            // Structure dan bu supervisorga tegishli bolalarni nomlarini olamiz
+            const structChildren = structureData.filter(c => c.supervisorId === orgId);
+            const structChildNames = structChildren.map(c => c.name.toLowerCase());
+            
+            // Parent nomiga oid kalitlar
+            const orgName = selectedOrg.name.toLowerCase();
+            const keywords = orgName
+                .replace(/['"]/g, '')
+                .split(/\s+/)
+                .filter(w => w.length > 3 && !['mtu', 'aj', 'filial', 'the'].includes(w.toLowerCase()));
+            
+            // Nom bo'yicha moslik qidirish
+            childrenWithData = companiesWithData.filter(company => {
+                const companyName = company.name.toLowerCase();
+                // Structure child nomlari bilan solishtiramiz
+                if (structChildNames.some(scn => companyName.includes(scn) || scn.includes(companyName))) {
+                    return true;
+                }
+                // Yoki parent kalit so'zlari bilan
+                return keywords.some(kw => companyName.includes(kw));
+            });
+            
+            if (childrenWithData.length > 0) {
+                console.log(`✅ Showing ${childrenWithData.length} name-matched subsidiaries under "${selectedOrg.name}"`);
+            }
         }
 
-        // Fallback: show structure subsidiaries
-        const structureSubsidiaries = structureData.filter(c => c.supervisorId === orgId);
-        console.log(`⚠️ No subsidiaries in database, showing ${structureSubsidiaries.length} from structure`);
-        return structureSubsidiaries;
+        if (childrenWithData.length > 0) {
+            console.log(`✅ Showing ${childrenWithData.length} subsidiaries under "${selectedOrg.name}"`);
+            return childrenWithData.sort((a, b) => (b.overallIndex || 0) - (a.overallIndex || 0));
+        }
+
+        // 3. Structure dan bolalarni ham tekshiramiz (live data bilan birlashtirish)
+        const structChildren = structureData.filter(c => c.supervisorId === orgId);
+        const structChildrenWithData = structChildren.filter(sc => {
+            const live = companies.find(c => c.id === sc.id || c.name === sc.name);
+            return live && hasData(live);
+        }).map(sc => {
+            const live = companies.find(c => c.id === sc.id || c.name === sc.name);
+            return live || sc;
+        });
+
+        if (structChildrenWithData.length > 0) {
+            console.log(`✅ Showing ${structChildrenWithData.length} structure children under "${selectedOrg.name}"`);
+            return structChildrenWithData.sort((a, b) => (b.overallIndex || 0) - (a.overallIndex || 0));
+        }
+
+        console.log(`⚠️ No subsidiaries with data for "${selectedOrg.name}"`);
+        return [];
     }
 
-    // CASE 2c: Try to find children by supervisorId (fallback)
-    const children = companies.filter(c => c.supervisorId === orgId);
-    if (children.length > 0) {
-        console.log(`✅ Found ${children.length} children with supervisorId="${orgId}"`);
-        return children;
+    // CASE 2c: Children by supervisorId - direct match
+    const childrenWithData = companiesWithData.filter(c => c.supervisorId === orgId);
+    if (childrenWithData.length > 0) {
+        console.log(`✅ Found ${childrenWithData.length} children with data for "${orgId}"`);
+        return childrenWithData.sort((a, b) => (b.overallIndex || 0) - (a.overallIndex || 0));
     }
 
-    // CASE 3: Single company selected or no match
-    if (selectedOrg) {
-        console.log(`✅ Showing single company: "${selectedOrg.name}"`);
-        return [selectedOrg];
+    // CASE 3: Single company - if it has data
+    const companyFromDB = companies.find(c => c.id === orgId);
+    if (companyFromDB && hasData(companyFromDB)) {
+        console.log(`✅ Showing single company: "${companyFromDB.name}"`);
+        return [companyFromDB];
     }
 
-    // CASE 4: No match found
-    console.log(`⚠️ No match found for "${orgId}", showing all companies`);
-    return companies.length > 0 ? companies : structureData;
+    // CASE 4: No match - show all with data
+    console.log(`⚠️ No match for "${orgId}", showing all with data`);
+    return companiesWithData;
 }
 
 // 2. Main Render Function

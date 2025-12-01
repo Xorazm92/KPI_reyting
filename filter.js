@@ -117,13 +117,32 @@ function getRankingContext(organization) {
 }
 
 /**
- * Tashkilot selektorini yaratish
+ * Tashkilot selektorini yaratish - Yaxshilangan versiya
+ * Faqat ma'lumot kiritilgan korxonalarni ko'rsatadi
  * @param {Array} companies - Korxonalar ro'yxati
+ * @param {boolean} showOnlyWithData - Faqat ma'lumotli korxonalarni ko'rsatish
  * @returns {string} - HTML
  */
-function createOrganizationSelector(companies) {
-    const management = companies.filter(c => c.level === 'management');
-    const supervisors = companies.filter(c => c.level === 'supervisor');
+function createOrganizationSelector(companies, showOnlyWithData = false) {
+    // Strukturadan barcha tashkilotlarni olamiz
+    const structureData = window.UZ_RAILWAY_DATA || [];
+    
+    // Ma'lumot kiritilgan korxonalar ID lari
+    const companiesWithData = companies.filter(c => c.overallIndex > 0).map(c => c.id);
+    const companiesWithDataSet = new Set(companiesWithData);
+    
+    // Foydalanish uchun manbani tanlaymiz
+    const dataSource = structureData.length > 0 ? structureData : companies;
+    
+    const management = dataSource.filter(c => c.level === 'management');
+    const supervisors = dataSource.filter(c => c.level === 'supervisor');
+
+    // Ma'lumot kiritilgan supervisorlarni topamiz (ularning subsidiary lari mavjud)
+    const supervisorsWithData = supervisors.filter(sup => {
+        const hasOwnData = companiesWithDataSet.has(sup.id);
+        const hasChildData = companies.some(c => c.supervisorId === sup.id && c.overallIndex > 0);
+        return hasOwnData || hasChildData;
+    });
 
     let html = `
         <div class="organization-selector">
@@ -132,18 +151,17 @@ function createOrganizationSelector(companies) {
                 Tashkilotni tanlang:
             </label>
             <select id="org-filter" class="org-select">
-                <option value="all">📊 Barcha korxonalar</option>
-                <optgroup label="🏛️ Boshqaruv">
+                <option value="all">📊 Barcha korxonalar (${companiesWithData.length} ta)</option>
     `;
 
-    management.forEach(org => {
-        html += `<option value="${org.id}">${org.name}</option>`;
-    });
-
-    html += `
-                </optgroup>
-                <optgroup label="🏭 Yuqori Tashkilotlar">
-    `;
+    // Boshqaruv (Management)
+    if (management.length > 0) {
+        html += `<optgroup label="🏛️ Boshqaruv">`;
+        management.forEach(org => {
+            html += `<option value="${org.id}">${org.name}</option>`;
+        });
+        html += `</optgroup>`;
+    }
 
     // Yuqori tashkilotlarni guruhlash
     const supervisorsByParent = {};
@@ -155,23 +173,29 @@ function createOrganizationSelector(companies) {
         supervisorsByParent[parentId].push(org);
     });
 
-    // AJ ga to'g'ridan-to'g'ri hisobot beruvchilar
-    if (supervisorsByParent['aj_head']) {
+    // Yuqori Tashkilotlar (AJ ga to'g'ridan-to'g'ri)
+    if (supervisorsByParent['aj_head'] && supervisorsByParent['aj_head'].length > 0) {
+        html += `<optgroup label="🏭 Yuqori Tashkilotlar">`;
         supervisorsByParent['aj_head'].forEach(org => {
-            html += `<option value="${org.id}">  📍 ${org.name}</option>`;
+            const childCount = companies.filter(c => c.supervisorId === org.id && c.overallIndex > 0).length;
+            const countText = childCount > 0 ? ` (${childCount})` : '';
+            html += `<option value="${org.id}">📍 ${org.name}${countText}</option>`;
         });
+        html += `</optgroup>`;
     }
 
-    // Infratuzilma tarkibidagi MTUlar
-    if (supervisorsByParent['infra_aj']) {
-        html += `<option disabled>─── Temiryo'linfratuzilma ───</option>`;
+    // Infratuzilma MTUlari
+    if (supervisorsByParent['infra_aj'] && supervisorsByParent['infra_aj'].length > 0) {
+        html += `<optgroup label="🚉 Temiryo'linfratuzilma">`;
         supervisorsByParent['infra_aj'].forEach(org => {
-            html += `<option value="${org.id}">    🚉 ${org.name}</option>`;
+            const childCount = companies.filter(c => c.supervisorId === org.id && c.overallIndex > 0).length;
+            const countText = childCount > 0 ? ` (${childCount})` : '';
+            html += `<option value="${org.id}">🚂 ${org.name}${countText}</option>`;
         });
+        html += `</optgroup>`;
     }
 
     html += `
-                </optgroup>
             </select>
         </div>
     `;
@@ -179,8 +203,19 @@ function createOrganizationSelector(companies) {
     return html;
 }
 
+/**
+ * Korxona qo'shish uchun yuqori tashkilot selektori
+ * Bu funksiya filter selectoridan farqli - barcha mumkin bo'lgan yuqori tashkilotlarni ko'rsatadi
+ * @returns {Array} - Yuqori tashkilotlar ro'yxati
+ */
+function getParentOrganizationsForForm() {
+    const structureData = window.UZ_RAILWAY_DATA || [];
+    return structureData.filter(c => c.level === 'management' || c.level === 'supervisor');
+}
+
 // Make globally accessible
 window.getFilteredCompaniesByOrganization = getFilteredCompaniesByOrganization;
 window.getOrganizationsByLevel = getOrganizationsByLevel;
 window.getRankingContext = getRankingContext;
 window.createOrganizationSelector = createOrganizationSelector;
+window.getParentOrganizationsForForm = getParentOrganizationsForForm;

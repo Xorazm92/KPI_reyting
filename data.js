@@ -1,36 +1,39 @@
 // O'zbekiston Temir Yo'llari AJ - Tashkiliy Tuzilma Ma'lumotlari
 
 // Make these globally accessible
+// O'ZBEKISTON STANDARTLARIGA MOSLASHTIRILGAN VAZNLAR
+// Baxtsiz hodisalar (ltifr) eng yuqori vaznga ega - O'zbekiston qonunchiligiga muvofiq
+// MUHIM: app.js dagi KPI_CONFIG bilan sinxronlashtirilgan (ltifr = 0.40)
 window.KPI_WEIGHTS = {
-    'road': { // Йўл хўжалиги
-        'ltifr': 0.25, 'trir': 0.10, 'noincident': 0.05, 'training': 0.05, 'raCoverage': 0.08,
-        'nearMiss': 0.06, 'responseTime': 0.05, 'prevention': 0.04, 'ppe': 0.08, 'equipment': 0.06,
-        'inspection': 0.05, 'occupational': 0.03, 'compliance': 0.04, 'emergency': 0.02, 'violations': 0.04
+    'road': { // Йўл хўжалиги - Yuqori xavfli
+        'ltifr': 0.40, 'trir': 0.10, 'noincident': 0.06, 'training': 0.05, 'raCoverage': 0.05,
+        'nearMiss': 0.04, 'responseTime': 0.04, 'prevention': 0.04, 'ppe': 0.05, 'equipment': 0.05,
+        'inspection': 0.03, 'occupational': 0.03, 'compliance': 0.02, 'emergency': 0.02, 'violations': 0.02
     },
-    'wagon': { // Вагон хўжалиги
-        'ltifr': 0.25, 'trir': 0.10, 'noincident': 0.05, 'training': 0.06, 'raCoverage': 0.08,
-        'nearMiss': 0.06, 'responseTime': 0.04, 'prevention': 0.04, 'ppe': 0.06, 'equipment': 0.08,
-        'inspection': 0.05, 'occupational': 0.05, 'compliance': 0.04, 'emergency': 0.02, 'violations': 0.02
+    'wagon': { // Вагон хўжалиги - Yuqori xavfli
+        'ltifr': 0.40, 'trir': 0.10, 'noincident': 0.06, 'training': 0.05, 'raCoverage': 0.05,
+        'nearMiss': 0.04, 'responseTime': 0.04, 'prevention': 0.04, 'ppe': 0.05, 'equipment': 0.05,
+        'inspection': 0.03, 'occupational': 0.03, 'compliance': 0.02, 'emergency': 0.02, 'violations': 0.02
     },
-    'locomotive': { // Lokomotiv xo'jaligi
-        'ltifr': 0.30, 'trir': 0.10, 'noincident': 0.05, 'training': 0.05, 'raCoverage': 0.08,
-        'nearMiss': 0.05, 'responseTime': 0.05, 'prevention': 0.05, 'ppe': 0.05, 'equipment': 0.10,
-        'inspection': 0.05, 'occupational': 0.02, 'compliance': 0.03, 'emergency': 0.01, 'violations': 0.01
+    'locomotive': { // Lokomotiv xo'jaligi - Juda yuqori xavfli
+        'ltifr': 0.45, 'trir': 0.10, 'noincident': 0.05, 'training': 0.05, 'raCoverage': 0.05,
+        'nearMiss': 0.04, 'responseTime': 0.03, 'prevention': 0.03, 'ppe': 0.04, 'equipment': 0.06,
+        'inspection': 0.03, 'occupational': 0.02, 'compliance': 0.02, 'emergency': 0.02, 'violations': 0.01
     },
-    'electric': { // Электр ва Алоқа
-        'ltifr': 0.25, 'trir': 0.08, 'noincident': 0.05, 'training': 0.08, 'raCoverage': 0.08,
-        'nearMiss': 0.06, 'responseTime': 0.05, 'prevention': 0.04, 'ppe': 0.08, 'equipment': 0.05,
-        'inspection': 0.05, 'occupational': 0.03, 'compliance': 0.06, 'emergency': 0.02, 'violations': 0.02
+    'electric': { // Электр ва Алоқа - Elektr xavfsizlik muhim
+        'ltifr': 0.40, 'trir': 0.10, 'noincident': 0.06, 'training': 0.06, 'raCoverage': 0.05,
+        'nearMiss': 0.04, 'responseTime': 0.04, 'prevention': 0.04, 'ppe': 0.06, 'equipment': 0.05,
+        'inspection': 0.03, 'occupational': 0.02, 'compliance': 0.02, 'emergency': 0.02, 'violations': 0.01
     },
-    'traffic': { // Ҳаракатни Бошқариш
-        'ltifr': 0.20, 'trir': 0.05, 'noincident': 0.08, 'training': 0.10, 'raCoverage': 0.05,
-        'nearMiss': 0.10, 'responseTime': 0.08, 'prevention': 0.05, 'ppe': 0.02, 'equipment': 0.02,
-        'inspection': 0.08, 'occupational': 0.02, 'compliance': 0.10, 'emergency': 0.04, 'violations': 0.01
+    'traffic': { // Ҳаракатни Бошқариш - Inson omili muhim
+        'ltifr': 0.35, 'trir': 0.08, 'noincident': 0.08, 'training': 0.08, 'raCoverage': 0.05,
+        'nearMiss': 0.06, 'responseTime': 0.05, 'prevention': 0.04, 'ppe': 0.03, 'equipment': 0.03,
+        'inspection': 0.05, 'occupational': 0.02, 'compliance': 0.04, 'emergency': 0.02, 'violations': 0.02
     },
-    'factory': { // Заводлар
-        'ltifr': 0.25, 'trir': 0.10, 'noincident': 0.05, 'training': 0.05, 'raCoverage': 0.08,
-        'nearMiss': 0.06, 'responseTime': 0.04, 'prevention': 0.05, 'ppe': 0.06, 'equipment': 0.08,
-        'inspection': 0.05, 'occupational': 0.04, 'compliance': 0.04, 'emergency': 0.03, 'violations': 0.02
+    'factory': { // Заводлар - Sanoat xavfsizligi
+        'ltifr': 0.40, 'trir': 0.10, 'noincident': 0.06, 'training': 0.05, 'raCoverage': 0.05,
+        'nearMiss': 0.04, 'responseTime': 0.04, 'prevention': 0.04, 'ppe': 0.05, 'equipment': 0.05,
+        'inspection': 0.03, 'occupational': 0.03, 'compliance': 0.02, 'emergency': 0.02, 'violations': 0.02
     }
 };
 
