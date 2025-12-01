@@ -23,26 +23,108 @@ try {
 }
 
 // ===================================
-// KPI Configuration & Weights
-// O'zbekiston mehnat qonunchiligiga muvofiq vaznlar
-// Baxtsiz hodisalar (ltifr) - ENG MUHIM ko'rsatkich
+// KPI Configuration & Weights (15 BAND)
+// Xalqaro standartlar: ISO 45001, OSHA, ILO
+// O'zbekiston mehnat qonunchiligiga moslashtirilgan
 // ===================================
 const KPI_CONFIG = {
-    ltifr: { name: "Baxtsiz hodisalar (Og'irlik)", weight: 0.40, lowerIsBetter: true, critical: true },
-    trir: { name: "Mikro-jarohatlar", weight: 0.10, lowerIsBetter: true, critical: true },
-    noincident: { name: "Bexavfsiz kunlar", weight: 0.06, lowerIsBetter: false },
-    training: { name: "Majburiy o'quv qamrovi", weight: 0.05, lowerIsBetter: false },
-    raCoverage: { name: "Xavfni baholash", weight: 0.05, lowerIsBetter: false },
-    nearMiss: { name: "Xabarlar va Takliflar", weight: 0.04, lowerIsBetter: false },
-    responseTime: { name: "Murojaatga reaksiya", weight: 0.04, lowerIsBetter: false },
-    prevention: { name: "Profilaktika (Moliya)", weight: 0.04, lowerIsBetter: false },
-    ppe: { name: "SHHV ta'minoti", weight: 0.05, lowerIsBetter: false },
-    equipment: { name: "Uskuna nazorati", weight: 0.05, lowerIsBetter: false },
-    inspection: { name: "Nazorat rejasi ijrosi", weight: 0.03, lowerIsBetter: false },
-    occupational: { name: "Kasbiy kasallik", weight: 0.03, lowerIsBetter: true },
-    compliance: { name: "Audit samaradorligi", weight: 0.02, lowerIsBetter: false },
-    emergency: { name: "Avariya tayyorgarligi", weight: 0.02, lowerIsBetter: false },
-    violations: { name: "Intizomiy buzilishlar", weight: 0.02, lowerIsBetter: true }
+    ltifr: { 
+        name: "Baxtsiz hodisalar (LTIFR)", 
+        weight: 0.45, 
+        lowerIsBetter: true, 
+        critical: true,
+        icon: "⚠️",
+        description: "Lost Time Injury Frequency Rate"
+    },
+    trir: { 
+        name: "TRIR / Mikro-jarohatlar", 
+        weight: 0.12, 
+        lowerIsBetter: true, 
+        critical: true,
+        icon: "🩹",
+        description: "Total Recordable Incident Rate"
+    },
+    noincident: { 
+        name: "Bexavfsiz kunlar", 
+        weight: 0.06, 
+        lowerIsBetter: false,
+        icon: "📅"
+    },
+    training: { 
+        name: "O'qitish qamrovi", 
+        weight: 0.05, 
+        lowerIsBetter: false,
+        icon: "📚"
+    },
+    equipment: { 
+        name: "Uskuna nazorati", 
+        weight: 0.06, 
+        lowerIsBetter: false,
+        icon: "🔧",
+        description: "Rolling stock va uskunalar"
+    },
+    ppe: { 
+        name: "SHHV ta'minoti", 
+        weight: 0.05, 
+        lowerIsBetter: false,
+        icon: "🦺"
+    },
+    raCoverage: { 
+        name: "Xavfni baholash", 
+        weight: 0.05, 
+        lowerIsBetter: false,
+        icon: "🎯"
+    },
+    prevention: { 
+        name: "Profilaktika xarajatlari", 
+        weight: 0.04, 
+        lowerIsBetter: false,
+        icon: "💰",
+        description: "CAPEX/OPEX ratio"
+    },
+    nearMiss: { 
+        name: "Xabarlar (Near Miss)", 
+        weight: 0.04, 
+        lowerIsBetter: false,
+        icon: "📢",
+        description: "Safety Culture indicator"
+    },
+    responseTime: { 
+        name: "Murojaatga reaksiya", 
+        weight: 0.03, 
+        lowerIsBetter: false,
+        icon: "⏱️"
+    },
+    inspection: { 
+        name: "Nazorat rejasi", 
+        weight: 0.03, 
+        lowerIsBetter: false,
+        icon: "📋"
+    },
+    occupational: { 
+        name: "Kasbiy kasalliklar", 
+        weight: 0.02, 
+        lowerIsBetter: true,
+        icon: "🏥"
+    },
+    compliance: { 
+        name: "Audit samaradorligi", 
+        weight: 0.02, 
+        lowerIsBetter: false,
+        icon: "✅"
+    },
+    emergency: { 
+        name: "Avariya mashqlari", 
+        weight: 0.02, 
+        lowerIsBetter: false,
+        icon: "🚨"
+    },
+    violations: { 
+        name: "Intizomiy buzilishlar", 
+        weight: 0.01, 
+        lowerIsBetter: true,
+        icon: "🎫"
+    }
 };
 
 // ===================================
@@ -166,118 +248,160 @@ class KPICalculator {
 
 // ===================================
 // Normalization Functions
-// O'zbekiston standartlariga moslashtirilgan normalizatsiya
+// Xalqaro standartlar + O'zbekiston temir yo'l tizimiga moslashtirilgan
+// Professional Penalty → Score konversiyasi
 // ===================================
+
+// LTIFR = (Lost Time Injuries × 1,000,000) / Total Hours Worked
+function calculateLTIFR(lostTimeInjuries, totalHoursWorked) {
+    if (totalHoursWorked <= 0) return 0;
+    return (lostTimeInjuries * 1000000) / totalHoursWorked;
+}
+
+// TRIR = (Recordable Incidents / Total Hours Worked) × 200,000
+function calculateTRIR(recordableIncidents, totalHoursWorked) {
+    if (totalHoursWorked <= 0) return 0;
+    return (recordableIncidents * 200000) / totalHoursWorked;
+}
+
+// Penalty → Score konversiyasi (xalqaro standart)
+function penaltyToScore(penalty) {
+    // Professional formula - linear interpolation
+    if (penalty === 0) return 100;
+    if (penalty <= 10) return Math.round(95 - (penalty - 1) * (15 / 9)); // 95-80 linear
+    if (penalty <= 50) return Math.round(80 - (penalty - 10) * (40 / 40)); // 80-40 linear
+    if (penalty <= 100) return Math.round(40 - (penalty - 50) * (30 / 50)); // 40-10 linear
+    if (penalty <= 200) return Math.round(10 - (penalty - 100) * (5 / 100)); // 10-5 linear
+    if (penalty <= 500) return Math.round(5 - (penalty - 200) * (5 / 300)); // 5-0 linear
+    return 0;
+}
+
+// Z-Score for benchmarking (peer comparison)
+function calculateZScore(value, mean, stdDev) {
+    if (stdDev === 0) return 0;
+    return (value - mean) / stdDev;
+}
+
+// Peer Group classification
+function getPeerGroup(totalHours, employees) {
+    if (totalHours >= 500000 || employees >= 300) return 'A'; // Katta
+    if (totalHours >= 100000 || employees >= 100) return 'B'; // O'rta
+    return 'C'; // Kichik
+}
+
 function normalizeKPI(value, kpiKey) {
     let score = 0;
 
     switch (kpiKey) {
-        case 'ltifr': // Baxtsiz hodisalar og'irligi - ENG MUHIM
-            // Jarima ballari: O'lim = 100, Og'ir = 50, Guruh = 40, Yengil = 10
-            // Normalizatsiya: eksponensial kamayish bilan - katta diapazonni qamrab oladi
-            // 0 ball = 100 score (mukammal)
-            // 500+ ball = ~0 score (juda yomon - bir nechta o'lim yoki ko'p og'ir hodisalar)
-            if (value === 0) {
-                score = 100; // Hech qanday hodisa yo'q - mukammal
-            } else if (value <= 10) {
-                score = 100 - (value * 2); // 80-100 oralig'i (yengil)
-            } else if (value <= 50) {
-                score = 80 - ((value - 10) * 1.0); // 40-80 oralig'i (o'rtacha)
-            } else if (value <= 100) {
-                score = 40 - ((value - 50) * 0.6); // 10-40 oralig'i (og'ir)
-            } else if (value <= 200) {
-                score = 10 - ((value - 100) * 0.05); // 5-10 oralig'i (juda og'ir)
-            } else if (value <= 500) {
-                score = 5 - ((value - 200) * 0.0167); // 0-5 oralig'i (kritik)
-            } else {
-                score = 0; // Ko'p o'limlar yoki og'ir hodisalar
-            }
+        case 'ltifr': // Baxtsiz hodisalar og'irligi - ENG MUHIM (45%)
+            // Penalty-based scoring system
+            // Koeffitsentlar: O'lim=100, Og'ir=50, Guruh=40, Yengil=10
+            score = penaltyToScore(value);
             break;
 
-        case 'trir': // Mikro-jarohatlar (100 xodimga nisbatan)
-            // 0% = 100 score, 5%+ = 0 score
+        case 'trir': // TRIR / Mikro-jarohatlar (12%)
+            // 100 xodimga nisbatan jarohatlar
+            // 0% = 100 ball, 5%+ = 0 ball
             if (value === 0) {
                 score = 100;
+            } else if (value <= 0.5) {
+                score = 98 - (value * 16); // Juda yaxshi
             } else if (value <= 1) {
-                score = 95 - (value * 15);
+                score = 90 - ((value - 0.5) * 20); // Yaxshi
+            } else if (value <= 2) {
+                score = 80 - ((value - 1) * 20); // Qoniqarli
             } else if (value <= 3) {
-                score = 80 - ((value - 1) * 20);
+                score = 60 - ((value - 2) * 20); // O'rtacha
             } else if (value <= 5) {
-                score = 40 - ((value - 3) * 20);
+                score = 40 - ((value - 3) * 20); // Yomon
             } else {
-                score = 0;
+                score = Math.max(0, 10 - (value - 5) * 2); // Kritik
             }
             break;
 
-        case 'noincident': // Bexavfsiz kunlar (% of 365)
-            // 100% = 365 kun bexavfsiz
-            score = Math.min(100, value);
+        case 'noincident': // Bexavfsiz kunlar (6%)
+            // 365 kun = 100%, interpolation
+            score = Math.min(100, (value / 365) * 100);
             break;
 
-        case 'training':
-        case 'raCoverage':
-        case 'ppe':
-        case 'equipment':
-        case 'inspection':
-        case 'compliance':
-        case 'emergency':
-        case 'responseTime':
+        case 'training': // O'qitish qamrovi (5%)
+        case 'raCoverage': // Xavfni baholash (5%)
+        case 'ppe': // SHHV ta'minoti (5%)
+        case 'equipment': // Uskuna nazorati (6%)
+        case 'inspection': // Nazorat rejasi (3%)
+        case 'compliance': // Audit samaradorligi (2%)
+        case 'emergency': // Avariya mashqlari (2%)
+        case 'responseTime': // Murojaatga reaksiya (3%)
             // Foizli ko'rsatkichlar - to'g'ridan-to'g'ri ball
             score = Math.min(100, Math.max(0, value));
             break;
 
-        case 'nearMiss': // Xabarlar va Takliflar
-            // Target: 100 xodimga 5 ta xabar oyiga (60 yillik)
-            // Faol xodimlar = yaxshi xavfsizlik madaniyati
+        case 'nearMiss': // Near Miss xabarlari (4%)
+            // Safety Culture indicator - yuqori = yaxshi madaniyat
+            // Target: 100 xodimga 5 ta xabar/oy (60 yillik)
             if (value >= 60) {
                 score = 100;
-            } else if (value >= 30) {
-                score = 70 + ((value - 30) / 30) * 30;
+            } else if (value >= 40) {
+                score = 85 + ((value - 40) / 20) * 15; // 85-100
+            } else if (value >= 20) {
+                score = 60 + ((value - 20) / 20) * 25; // 60-85
             } else if (value >= 10) {
-                score = 40 + ((value - 10) / 20) * 30;
+                score = 40 + ((value - 10) / 10) * 20; // 40-60
+            } else if (value >= 5) {
+                score = 20 + ((value - 5) / 5) * 20; // 20-40
             } else {
-                score = (value / 10) * 40;
+                score = (value / 5) * 20; // 0-20
             }
             break;
 
-        case 'prevention': // MM xarajatlari / Jami xarajatlar (%)
-            // Ideal: 2-5% - Bu sohaga etarli mablag' ajratilmoqda
+        case 'prevention': // Profilaktika xarajatlari (4%)
+            // Ideal: 2-5% of total budget
+            // CAPEX/OPEX ratio for safety
             if (value >= 2 && value <= 5) {
-                score = 100;
-            } else if (value >= 1 && value < 2) {
-                score = 60 + ((value - 1) * 40);
-            } else if (value > 5 && value <= 8) {
-                score = 100 - ((value - 5) * 10);
+                score = 100; // Ideal diapazon
+            } else if (value >= 1.5 && value < 2) {
+                score = 80 + ((value - 1.5) * 40); // 80-100
+            } else if (value >= 1 && value < 1.5) {
+                score = 60 + ((value - 1) * 40); // 60-80
+            } else if (value > 5 && value <= 7) {
+                score = 100 - ((value - 5) * 15); // 100-70
             } else if (value < 1) {
-                score = value * 60;
+                score = value * 60; // 0-60
             } else {
-                score = Math.max(0, 70 - ((value - 8) * 10));
+                score = Math.max(0, 70 - ((value - 7) * 10));
             }
             break;
 
-        case 'occupational': // Kasbiy kasalliklar soni
-            // 0 = 100, har bir kasallik uchun katta jarima
+        case 'occupational': // Kasbiy kasalliklar (2%)
+            // Har bir kasallik uchun katta jarima
             if (value === 0) {
                 score = 100;
             } else if (value === 1) {
-                score = 60;
+                score = 55;
             } else if (value === 2) {
                 score = 30;
+            } else if (value === 3) {
+                score = 15;
             } else {
-                score = Math.max(0, 30 - (value - 2) * 15);
+                score = Math.max(0, 10 - (value - 3) * 3);
             }
             break;
 
-        case 'violations': // Intizomiy buzilishlar indeksi
-            // 100 xodimga nisbatan jarima ballari
+        case 'violations': // Intizomiy buzilishlar (1%)
+            // Talon tizimi: Qizil×10 + Sariq×3 + Yashil×1
+            // 100 xodimga nisbatan
             if (value === 0) {
                 score = 100;
+            } else if (value <= 2) {
+                score = 95 - (value * 10); // 75-95
             } else if (value <= 5) {
-                score = 90 - (value * 8);
-            } else if (value <= 15) {
-                score = 50 - ((value - 5) * 4);
+                score = 75 - ((value - 2) * 10); // 45-75
+            } else if (value <= 10) {
+                score = 45 - ((value - 5) * 6); // 15-45
+            } else if (value <= 20) {
+                score = 15 - ((value - 10) * 1.5); // 0-15
             } else {
-                score = Math.max(0, 10 - ((value - 15) * 1));
+                score = 0;
             }
             break;
     }

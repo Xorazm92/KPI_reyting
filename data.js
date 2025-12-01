@@ -1,50 +1,403 @@
 // O'zbekiston Temir Yo'llari AJ - Tashkiliy Tuzilma Ma'lumotlari
+// Xalqaro standartlar: ISO 45001, OSHA, ILO va O'zbekiston mehnat qonunchiligi asosida
 
-// Make these globally accessible
-// O'ZBEKISTON STANDARTLARIGA MOSLASHTIRILGAN VAZNLAR
-// Baxtsiz hodisalar (ltifr) eng yuqori vaznga ega - O'zbekiston qonunchiligiga muvofiq
-// MUHIM: app.js dagi KPI_CONFIG bilan sinxronlashtirilgan (ltifr = 0.40)
+// ========================================
+// TEMIR YO'L XAVFSIZLIK KPI VAZNLARI
+// Rail-optimized weights (15 band)
+// ========================================
 window.KPI_WEIGHTS = {
-    'road': { // Йўл хўжалиги - Yuqori xavfli
-        'ltifr': 0.40, 'trir': 0.10, 'noincident': 0.06, 'training': 0.05, 'raCoverage': 0.05,
-        'nearMiss': 0.04, 'responseTime': 0.04, 'prevention': 0.04, 'ppe': 0.05, 'equipment': 0.05,
-        'inspection': 0.03, 'occupational': 0.03, 'compliance': 0.02, 'emergency': 0.02, 'violations': 0.02
+    // LOKOMOTIV - Juda yuqori xavfli (mashinist, elektr, harakat)
+    'locomotive': {
+        'ltifr': 0.45,        // Baxtsiz hodisalar - ENG MUHIM
+        'trir': 0.12,         // TRIR / Mikro-jarohatlar
+        'noincident': 0.06,   // Bexavfsiz kunlar
+        'training': 0.05,     // O'qitish
+        'equipment': 0.06,    // Uskuna nazorati (rolling stock)
+        'ppe': 0.05,          // SHHV va PPE
+        'raCoverage': 0.05,   // Xavfni baholash
+        'prevention': 0.04,   // Profilaktika (CAPEX/OPEX)
+        'nearMiss': 0.04,     // Xabarlar va Safety Culture
+        'responseTime': 0.03, // Murojaatga reaksiya
+        'inspection': 0.03,   // Nazorat rejasi
+        'occupational': 0.02, // Kasbiy kasalliklar
+        'compliance': 0.02,   // Audit
+        'emergency': 0.02,    // Avariya mashqlari
+        'violations': 0.01    // Intizomiy
     },
-    'wagon': { // Вагон хўжалиги - Yuqori xavfli
-        'ltifr': 0.40, 'trir': 0.10, 'noincident': 0.06, 'training': 0.05, 'raCoverage': 0.05,
-        'nearMiss': 0.04, 'responseTime': 0.04, 'prevention': 0.04, 'ppe': 0.05, 'equipment': 0.05,
-        'inspection': 0.03, 'occupational': 0.03, 'compliance': 0.02, 'emergency': 0.02, 'violations': 0.02
+    
+    // YO'L XO'JALIGI - Yuqori fizik xavf
+    'road': {
+        'ltifr': 0.45,
+        'trir': 0.12,
+        'noincident': 0.06,
+        'training': 0.05,
+        'equipment': 0.06,
+        'ppe': 0.05,
+        'raCoverage': 0.05,
+        'prevention': 0.04,
+        'nearMiss': 0.04,
+        'responseTime': 0.03,
+        'inspection': 0.03,
+        'occupational': 0.02,
+        'compliance': 0.02,
+        'emergency': 0.02,
+        'violations': 0.01
     },
-    'locomotive': { // Lokomotiv xo'jaligi - Juda yuqori xavfli
-        'ltifr': 0.45, 'trir': 0.10, 'noincident': 0.05, 'training': 0.05, 'raCoverage': 0.05,
-        'nearMiss': 0.04, 'responseTime': 0.03, 'prevention': 0.03, 'ppe': 0.04, 'equipment': 0.06,
-        'inspection': 0.03, 'occupational': 0.02, 'compliance': 0.02, 'emergency': 0.02, 'violations': 0.01
+    
+    // VAGON XO'JALIGI - Texnologik xavf
+    'wagon': {
+        'ltifr': 0.45,
+        'trir': 0.12,
+        'noincident': 0.06,
+        'training': 0.05,
+        'equipment': 0.06,
+        'ppe': 0.05,
+        'raCoverage': 0.05,
+        'prevention': 0.04,
+        'nearMiss': 0.04,
+        'responseTime': 0.03,
+        'inspection': 0.03,
+        'occupational': 0.02,
+        'compliance': 0.02,
+        'emergency': 0.02,
+        'violations': 0.01
     },
-    'electric': { // Электр ва Алоқа - Elektr xavfsizlik muhim
-        'ltifr': 0.40, 'trir': 0.10, 'noincident': 0.06, 'training': 0.06, 'raCoverage': 0.05,
-        'nearMiss': 0.04, 'responseTime': 0.04, 'prevention': 0.04, 'ppe': 0.06, 'equipment': 0.05,
-        'inspection': 0.03, 'occupational': 0.02, 'compliance': 0.02, 'emergency': 0.02, 'violations': 0.01
+    
+    // ELEKTR VA ALOQA - Elektr xavfsizlik muhim
+    'electric': {
+        'ltifr': 0.45,
+        'trir': 0.12,
+        'noincident': 0.06,
+        'training': 0.06,     // O'qitish muhimroq
+        'equipment': 0.05,
+        'ppe': 0.06,          // PPE muhimroq
+        'raCoverage': 0.05,
+        'prevention': 0.04,
+        'nearMiss': 0.04,
+        'responseTime': 0.03,
+        'inspection': 0.03,
+        'occupational': 0.02,
+        'compliance': 0.02,
+        'emergency': 0.02,
+        'violations': 0.01
     },
-    'traffic': { // Ҳаракатни Бошқариш - Inson omili muhim
-        'ltifr': 0.35, 'trir': 0.08, 'noincident': 0.08, 'training': 0.08, 'raCoverage': 0.05,
-        'nearMiss': 0.06, 'responseTime': 0.05, 'prevention': 0.04, 'ppe': 0.03, 'equipment': 0.03,
-        'inspection': 0.05, 'occupational': 0.02, 'compliance': 0.04, 'emergency': 0.02, 'violations': 0.02
+    
+    // HARAKATNI BOSHQARISH - Inson omili muhim
+    'traffic': {
+        'ltifr': 0.40,
+        'trir': 0.10,
+        'noincident': 0.08,   // Bexavfsiz kunlar muhimroq
+        'training': 0.08,     // O'qitish muhimroq
+        'equipment': 0.04,
+        'ppe': 0.04,
+        'raCoverage': 0.06,
+        'prevention': 0.04,
+        'nearMiss': 0.05,
+        'responseTime': 0.04,
+        'inspection': 0.04,
+        'occupational': 0.02,
+        'compliance': 0.03,
+        'emergency': 0.02,
+        'violations': 0.02
     },
-    'factory': { // Заводлар - Sanoat xavfsizligi
-        'ltifr': 0.40, 'trir': 0.10, 'noincident': 0.06, 'training': 0.05, 'raCoverage': 0.05,
-        'nearMiss': 0.04, 'responseTime': 0.04, 'prevention': 0.04, 'ppe': 0.05, 'equipment': 0.05,
-        'inspection': 0.03, 'occupational': 0.03, 'compliance': 0.02, 'emergency': 0.02, 'violations': 0.02
+    
+    // ZAVODLAR - Sanoat xavfsizligi
+    'factory': {
+        'ltifr': 0.45,
+        'trir': 0.12,
+        'noincident': 0.06,
+        'training': 0.05,
+        'equipment': 0.06,
+        'ppe': 0.05,
+        'raCoverage': 0.05,
+        'prevention': 0.04,
+        'nearMiss': 0.04,
+        'responseTime': 0.03,
+        'inspection': 0.03,
+        'occupational': 0.02,
+        'compliance': 0.02,
+        'emergency': 0.02,
+        'violations': 0.01
     }
 };
 
+// ========================================
+// DEPARTMENT PROFILES (Sektorlar)
+// ========================================
 window.DEPARTMENT_PROFILES = [
-    { id: 'road', name: 'Йўл хўжалиги (Физик хавф юқори)' },
-    { id: 'wagon', name: 'Вагон хўжалиги (Технологик хавф)' },
-    { id: 'locomotive', name: 'Lokomotiv xo\'jaligi (Yuqori xavf)' },
-    { id: 'electric', name: 'Электр ва Алоқа (Электрохавфсизлик)' },
-    { id: 'traffic', name: 'Ҳаракатни Бошқариш (Инсон омили хавфи)' },
-    { id: 'factory', name: 'Заводлар (Саноат хавфсизлиги)' }
+    { id: 'locomotive', name: 'Lokomotiv xo\'jaligi (Juda yuqori xavf)', riskLevel: 'critical', icon: '🚂' },
+    { id: 'road', name: 'Yo\'l xo\'jaligi (Yuqori fizik xavf)', riskLevel: 'high', icon: '🛤️' },
+    { id: 'wagon', name: 'Vagon xo\'jaligi (Texnologik xavf)', riskLevel: 'high', icon: '🚃' },
+    { id: 'electric', name: 'Elektr va Aloqa (Elektroxavfsizlik)', riskLevel: 'high', icon: '⚡' },
+    { id: 'traffic', name: 'Harakatni Boshqarish (Inson omili)', riskLevel: 'medium', icon: '🚦' },
+    { id: 'factory', name: 'Zavodlar (Sanoat xavfsizligi)', riskLevel: 'high', icon: '🏭' }
 ];
+
+// ========================================
+// PENALTY TO SCORE NORMALIZATION TABLE
+// Professional formula - xalqaro standartlar
+// ========================================
+window.PENALTY_TO_SCORE = {
+    // Baxtsiz hodisalar uchun jarima -> ball konversiyasi
+    accidentPenalty: [
+        { min: 0, max: 0, score: 100 },      // Hech qanday hodisa yo'q
+        { min: 1, max: 10, scoreMin: 95, scoreMax: 80 },   // Yengil
+        { min: 11, max: 50, scoreMin: 80, scoreMax: 40 },  // O'rtacha
+        { min: 51, max: 100, scoreMin: 40, scoreMax: 10 }, // Og'ir
+        { min: 101, max: 200, scoreMin: 10, scoreMax: 5 }, // Juda og'ir
+        { min: 201, max: 500, scoreMin: 5, scoreMax: 0 },  // Kritik
+        { min: 501, max: Infinity, score: 0 }              // Falokatli
+    ],
+    
+    // LTIFR benchmarks (xalqaro standartlar)
+    ltifrBenchmarks: {
+        excellent: 0.5,   // Ajoyib - xalqaro miqyosda eng yaxshi
+        good: 1.0,        // Yaxshi
+        average: 2.0,     // O'rtacha
+        poor: 4.0,        // Yomon
+        critical: 8.0     // Kritik
+    },
+    
+    // TRIR benchmarks
+    trirBenchmarks: {
+        excellent: 1.0,
+        good: 2.5,
+        average: 5.0,
+        poor: 10.0,
+        critical: 20.0
+    }
+};
+
+// ========================================
+// SOAT HAJMI ASOSIDA BAND GURUHLARI (Peer Grouping)
+// ========================================
+window.PEER_GROUPS = {
+    'A': { minHours: 500000, maxHours: Infinity, name: 'Katta korxonalar', minEmployees: 300 },
+    'B': { minHours: 100000, maxHours: 499999, name: 'O\'rta korxonalar', minEmployees: 100 },
+    'C': { minHours: 0, maxHours: 99999, name: 'Kichik korxonalar', minEmployees: 0 }
+};
+
+// ========================================
+// KPI CONFIGURATION (15 band)
+// ========================================
+window.KPI_CONFIG_EXTENDED = {
+    ltifr: { 
+        name: "Baxtsiz hodisalar (LTIFR)", 
+        weight: 0.45, 
+        lowerIsBetter: true, 
+        critical: true,
+        description: "Lost Time Injury Frequency Rate",
+        formula: "(Lost Time Injuries × 1,000,000) / Total Hours Worked",
+        icon: "⚠️"
+    },
+    trir: { 
+        name: "TRIR / Mikro-jarohatlar", 
+        weight: 0.12, 
+        lowerIsBetter: true, 
+        critical: true,
+        description: "Total Recordable Incident Rate",
+        formula: "(Recordable Incidents / Total Hours Worked) × 200,000",
+        icon: "🩹"
+    },
+    noincident: { 
+        name: "Bexavfsiz kunlar", 
+        weight: 0.06, 
+        lowerIsBetter: false,
+        description: "Hodisasiz o'tgan kunlar soni",
+        icon: "📅"
+    },
+    training: { 
+        name: "O'qitish qamrovi", 
+        weight: 0.05, 
+        lowerIsBetter: false,
+        description: "Majburiy MM o'quvlarini o'tgan xodimlar ulushi",
+        icon: "📚"
+    },
+    equipment: { 
+        name: "Uskuna nazorati", 
+        weight: 0.06, 
+        lowerIsBetter: false,
+        description: "Rolling stock va uskunalar ko'rigi",
+        icon: "🔧"
+    },
+    ppe: { 
+        name: "SHHV ta'minoti", 
+        weight: 0.05, 
+        lowerIsBetter: false,
+        description: "Shaxsiy himoya vositalari bilan ta'minlanganlik",
+        icon: "🦺"
+    },
+    raCoverage: { 
+        name: "Xavfni baholash", 
+        weight: 0.05, 
+        lowerIsBetter: false,
+        description: "Risk Assessment qamrovi",
+        icon: "🎯"
+    },
+    prevention: { 
+        name: "Profilaktika xarajatlari", 
+        weight: 0.04, 
+        lowerIsBetter: false,
+        description: "CAPEX/OPEX ratio for safety",
+        icon: "💰"
+    },
+    nearMiss: { 
+        name: "Xabarlar (Near Miss)", 
+        weight: 0.04, 
+        lowerIsBetter: false,
+        description: "Safety Culture - near-miss reporting rate",
+        icon: "📢"
+    },
+    responseTime: { 
+        name: "Murojaatga reaksiya", 
+        weight: 0.03, 
+        lowerIsBetter: false,
+        description: "Nomuvofiqliklarni yopish tezligi",
+        icon: "⏱️"
+    },
+    inspection: { 
+        name: "Nazorat rejasi", 
+        weight: 0.03, 
+        lowerIsBetter: false,
+        description: "Ichki nazorat rejasi ijrosi",
+        icon: "📋"
+    },
+    occupational: { 
+        name: "Kasbiy kasalliklar", 
+        weight: 0.02, 
+        lowerIsBetter: true,
+        description: "Aniqlangan kasbiy kasalliklar soni",
+        icon: "🏥"
+    },
+    compliance: { 
+        name: "Audit samaradorligi", 
+        weight: 0.02, 
+        lowerIsBetter: false,
+        description: "Audit natijasi va muvofiqlik darajasi",
+        icon: "✅"
+    },
+    emergency: { 
+        name: "Avariya mashqlari", 
+        weight: 0.02, 
+        lowerIsBetter: false,
+        description: "Favqulodda vaziyatlarga tayyorgarlik",
+        icon: "🚨"
+    },
+    violations: { 
+        name: "Intizomiy buzilishlar", 
+        weight: 0.01, 
+        lowerIsBetter: true,
+        description: "Talon tizimi bo'yicha buzilishlar",
+        icon: "🎫"
+    }
+};
+
+// ========================================
+// ACCIDENT SEVERITY COEFFICIENTS
+// O'zbekiston va xalqaro standartlar
+// ========================================
+window.ACCIDENT_COEFFICIENTS = {
+    fatal: { value: 100, label: "O'lim hollari", color: "#1a1a2e", icon: "💀" },
+    severe: { value: 50, label: "Og'ir-o'rta og'ir", color: "#c0392b", icon: "🚑" },
+    group: { value: 40, label: "Guruhli hodisa", color: "#d35400", icon: "👥" },
+    light: { value: 10, label: "Yengil hodisa", color: "#f39c12", icon: "🩹" }
+};
+
+// ========================================
+// LTIFR & TRIR CALCULATION HELPERS
+// ========================================
+window.SafetyMetrics = {
+    // LTIFR = (Lost Time Injuries × 1,000,000) / Total Hours Worked
+    calculateLTIFR: function(lostTimeInjuries, totalHoursWorked) {
+        if (totalHoursWorked <= 0) return 0;
+        return (lostTimeInjuries * 1000000) / totalHoursWorked;
+    },
+    
+    // TRIR = (Recordable Incidents / Total Hours Worked) × 200,000
+    calculateTRIR: function(recordableIncidents, totalHoursWorked) {
+        if (totalHoursWorked <= 0) return 0;
+        return (recordableIncidents * 200000) / totalHoursWorked;
+    },
+    
+    // Penalty score from accidents
+    calculatePenaltyScore: function(fatal, severe, group, light) {
+        const coeffs = window.ACCIDENT_COEFFICIENTS;
+        return (fatal * coeffs.fatal.value) + 
+               (severe * coeffs.severe.value) + 
+               (group * coeffs.group.value) + 
+               (light * coeffs.light.value);
+    },
+    
+    // Convert penalty to normalized score (0-100)
+    penaltyToScore: function(penalty) {
+        const table = window.PENALTY_TO_SCORE.accidentPenalty;
+        
+        for (const range of table) {
+            if (penalty >= range.min && penalty <= range.max) {
+                if (range.score !== undefined) {
+                    return range.score;
+                }
+                // Linear interpolation
+                const ratio = (penalty - range.min) / (range.max - range.min);
+                return Math.round(range.scoreMax + (range.scoreMin - range.scoreMax) * (1 - ratio));
+            }
+        }
+        return 0;
+    },
+    
+    // Z-Score for benchmarking
+    calculateZScore: function(value, mean, stdDev) {
+        if (stdDev === 0) return 0;
+        return (value - mean) / stdDev;
+    },
+    
+    // Get peer group based on hours/employees
+    getPeerGroup: function(totalHours, employees) {
+        const groups = window.PEER_GROUPS;
+        
+        if (totalHours >= groups.A.minHours || employees >= groups.A.minEmployees) {
+            return 'A';
+        } else if (totalHours >= groups.B.minHours || employees >= groups.B.minEmployees) {
+            return 'B';
+        }
+        return 'C';
+    },
+    
+    // Calculate yearly hours from employee count (standard: 1820 hours/year)
+    calculateYearlyHours: function(employees, hoursPerEmployee = 1820) {
+        return employees * hoursPerEmployee;
+    }
+};
+
+// ========================================
+// BENCHMARK DATA (Sector Medians)
+// ========================================
+window.SECTOR_BENCHMARKS = {
+    locomotive: {
+        ltifr: { median: 3.5, stdDev: 1.8, excellent: 1.0, poor: 6.0 },
+        trir: { median: 8.0, stdDev: 3.5, excellent: 2.0, poor: 15.0 }
+    },
+    road: {
+        ltifr: { median: 4.0, stdDev: 2.0, excellent: 1.5, poor: 7.0 },
+        trir: { median: 9.0, stdDev: 4.0, excellent: 2.5, poor: 16.0 }
+    },
+    wagon: {
+        ltifr: { median: 3.0, stdDev: 1.5, excellent: 0.8, poor: 5.0 },
+        trir: { median: 7.0, stdDev: 3.0, excellent: 1.8, poor: 13.0 }
+    },
+    electric: {
+        ltifr: { median: 2.5, stdDev: 1.2, excellent: 0.5, poor: 4.5 },
+        trir: { median: 6.0, stdDev: 2.5, excellent: 1.5, poor: 11.0 }
+    },
+    traffic: {
+        ltifr: { median: 1.5, stdDev: 0.8, excellent: 0.3, poor: 3.0 },
+        trir: { median: 4.0, stdDev: 2.0, excellent: 1.0, poor: 8.0 }
+    },
+    factory: {
+        ltifr: { median: 3.2, stdDev: 1.6, excellent: 0.8, poor: 5.5 },
+        trir: { median: 7.5, stdDev: 3.2, excellent: 2.0, poor: 14.0 }
+    }
+};
 
 // Keep const for backward compatibility
 const KPI_WEIGHTS = window.KPI_WEIGHTS;
@@ -116,7 +469,7 @@ const UZ_RAILWAY_DATA = [
     {
         id: 'quyuv_mex',
         name: "\"Quyuv mexanika zavodi\" AJ",
-        level: 'subsidiary', // Zavod o'zi hisobot beradi
+        level: 'subsidiary',
         supervisorId: 'aj_head',
         riskGroup: 'high',
         employees: 1200,
@@ -124,8 +477,7 @@ const UZ_RAILWAY_DATA = [
         kpis: getEmptyKPIs()
     },
 
-    // 3-Daraja: Temiryo'linfratuzilma tarkibidagi MTUlar (Mintaqaviy Temir Yo'l Uzellari)
-    // Bular ham o'z hududida "supervisor" hisoblanadi
+    // 3-Daraja: Temiryo'linfratuzilma tarkibidagi MTUlar
     {
         id: 'toshkent_mtu',
         name: "Toshkent MTU",
@@ -187,35 +539,29 @@ const UZ_RAILWAY_DATA = [
         kpis: getEmptyKPIs()
     },
 
-    // 4-Daraja: Filiallar (MTUlar tarkibida)
-    // Toshkent MTU
+    // 4-Daraja: Filiallar
     { id: 'salor_masofa', name: "Salor temir yo'l masofasi", level: 'subsidiary', supervisorId: 'toshkent_mtu', riskGroup: 'high', employees: 150, overallIndex: 0, kpis: getEmptyKPIs() },
     { id: 'toshkent_masofa', name: "Toshkent temir yo'l masofasi", level: 'subsidiary', supervisorId: 'toshkent_mtu', riskGroup: 'high', employees: 200, overallIndex: 0, kpis: getEmptyKPIs() },
     { id: 'xovos_masofa', name: "Xovos temir yo'l masofasi", level: 'subsidiary', supervisorId: 'toshkent_mtu', riskGroup: 'high', employees: 180, overallIndex: 0, kpis: getEmptyKPIs() },
     { id: 'toshkent_elektr', name: "Toshkent elektr ta'minoti", level: 'subsidiary', supervisorId: 'toshkent_mtu', riskGroup: 'high', employees: 120, overallIndex: 0, kpis: getEmptyKPIs() },
 
-    // Qo'qon MTU
     { id: 'qoqon_depo', name: "Qo'qon lokomotiv deposi", level: 'subsidiary', supervisorId: 'qoqon_mtu', riskGroup: 'high', employees: 450, overallIndex: 0, kpis: getEmptyKPIs() },
     { id: 'andijon_depo', name: "Andijon lokomotiv deposi", level: 'subsidiary', supervisorId: 'qoqon_mtu', riskGroup: 'high', employees: 300, overallIndex: 0, kpis: getEmptyKPIs() },
     { id: 'qoqon_masofa', name: "Qo'qon temir yo'l masofasi", level: 'subsidiary', supervisorId: 'qoqon_mtu', riskGroup: 'high', employees: 220, overallIndex: 0, kpis: getEmptyKPIs() },
 
-    // Buxoro MTU
     { id: 'buxoro_depo', name: "Buxoro lokomotiv deposi", level: 'subsidiary', supervisorId: 'buxoro_mtu', riskGroup: 'high', employees: 380, overallIndex: 0, kpis: getEmptyKPIs() },
     { id: 'tinchlik_depo', name: "Tinchlik lokomotiv deposi", level: 'subsidiary', supervisorId: 'buxoro_mtu', riskGroup: 'high', employees: 250, overallIndex: 0, kpis: getEmptyKPIs() },
 
-    // O'ztemiryo'lyo'lovchi tarkibi
     { id: 'vokzallar', name: "\"Temiryo'lvokzallari\" MChJ", level: 'subsidiary', supervisorId: 'yolovchi_aj', riskGroup: 'medium', employees: 800, overallIndex: 0, kpis: getEmptyKPIs() },
     { id: 'shahar_atrofi', name: "\"Shahar atrofida yo'lovchi tashish\" MChJ", level: 'subsidiary', supervisorId: 'yolovchi_aj', riskGroup: 'medium', employees: 400, overallIndex: 0, kpis: getEmptyKPIs() },
 
-    // Boshqa AJlar
     { id: 'vagon_tamir', name: "\"O'zvagonta'mir\" AJ", level: 'subsidiary', supervisorId: 'aj_head', riskGroup: 'high', employees: 600, overallIndex: 0, kpis: getEmptyKPIs() },
     { id: 'konteyner', name: "\"O'ztemiryo'lkontener\" AJ", level: 'subsidiary', supervisorId: 'aj_head', riskGroup: 'medium', employees: 350, overallIndex: 0, kpis: getEmptyKPIs() },
 
-    // Yangi qo'shilgan yuqori tashkilotlar (to'g'ridan-to'g'ri AJ ga hisobot beradi)
     {
         id: 'energiya_poezd',
         name: "1-son Energiyamontaj poezdi",
-        level: 'supervisor',  // Yuqori tashkilot
+        level: 'supervisor',
         supervisorId: 'aj_head',
         riskGroup: 'high',
         employees: 280,
@@ -226,7 +572,7 @@ const UZ_RAILWAY_DATA = [
     {
         id: 'tashkent_vagon_zavod',
         name: "Toshkent yo'lovchi vagonlarni ta'minlash zavodi",
-        level: 'supervisor',  // Yuqori tashkilot
+        level: 'supervisor',
         supervisorId: 'aj_head',
         riskGroup: 'high',
         employees: 520,
@@ -237,7 +583,7 @@ const UZ_RAILWAY_DATA = [
     {
         id: 'andijon_mex_zavod',
         name: "Andijon mehanika zavodi",
-        level: 'supervisor',  // Yuqori tashkilot
+        level: 'supervisor',
         supervisorId: 'aj_head',
         riskGroup: 'high',
         employees: 450,
