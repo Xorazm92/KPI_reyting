@@ -313,13 +313,15 @@ window.ACCIDENT_COEFFICIENTS = {
 // LTIFR & TRIR CALCULATION HELPERS
 // ========================================
 window.SafetyMetrics = {
-    // LTIFR = (Lost Time Injuries × 1,000,000) / Total Hours Worked
+    // LTIFR = (Lost Time Injuries × 200,000) / Total Hours Worked
+    // OSHA standart normalizatsiya faktori: 200,000 (100 xodim × 2000 soat/yil)
     calculateLTIFR: function(lostTimeInjuries, totalHoursWorked) {
         if (totalHoursWorked <= 0) return 0;
-        return (lostTimeInjuries * 1000000) / totalHoursWorked;
+        return (lostTimeInjuries * 200000) / totalHoursWorked;
     },
     
-    // TRIR = (Recordable Incidents / Total Hours Worked) × 200,000
+    // TRIR = (Recordable Incidents × 200,000) / Total Hours Worked
+    // OSHA standart normalizatsiya faktori: 200,000
     calculateTRIR: function(recordableIncidents, totalHoursWorked) {
         if (totalHoursWorked <= 0) return 0;
         return (recordableIncidents * 200000) / totalHoursWorked;
