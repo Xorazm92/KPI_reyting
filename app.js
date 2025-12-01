@@ -1237,22 +1237,89 @@ function renderPodium(displayCompanies = companies) {
 // Keeping it commented out or removing it depends on whether it's used elsewhere.
 // For this change, it's effectively replaced.
 
-function viewCompanyDetails(id) {
-    const company = companies.find(c => c.id === id);
-    if (!company) return;
-
-    let details = `Korxona: ${company.name} \n`;
-    details += `Xodimlar: ${company.employees} \n`;
-    details += `MM Indeksi: ${company.overallIndex.toFixed(1)} \n`;
-    details += `Reyting: #${company.rank} \n\n`;
-    details += `KPI Ballari: \n`;
-
-    for (const [key, kpi] of Object.entries(company.kpis)) {
-        const config = KPI_CONFIG[key];
-        details += `${config.name}: ${kpi.score}/100\n`;
+function viewCompanyDetails(companyId) {
+    const company = companies.find(c => c.id === companyId);
+    if (!company) {
+        alert('Korxona topilmadi!');
+        return;
     }
 
-    alert(details);
+    const modal = document.getElementById('company-details-modal');
+    if (!modal) {
+        alert('Modal topilmadi!');
+        return;
+    }
+
+    const risk = getRiskProfile(company.profile);
+    const violations = checkMinimumRequirements(company.kpis || {}, company.profile);
+
+    // Header info
+    document.getElementById('detail-company-name').textContent = company.name;
+    document.getElementById('detail-profile').textContent = company.profile || '--';
+    document.getElementById('detail-risk-level').textContent = risk.name;
+    document.getElementById('detail-overall-score').textContent = (company.overallIndex || 0).toFixed(1);
+    const zone = getZone(company.overallIndex);
+    document.getElementById('detail-zone').innerHTML = zone.label;
+
+    // 15 KPI Breakdown
+    const kpiConfig = window.KPI_CONFIG || {};
+    const profileWeights = window.KPI_WEIGHTS[company.profile] || {};
+    let kpiHTML = '';
+
+    for (const [key, config] of Object.entries(kpiConfig)) {
+        const kpiData = company.kpis && company.kpis[key] ? company.kpis[key] : { value: 0, score: 0 };
+        const weight = profileWeights[key] || config.weight;
+        const score = kpiData.score || 0;
+        const percentage = (weight * 100).toFixed(0);
+        const displayValue = kpiData.value !== undefined ? (typeof kpiData.value === 'number' ? kpiData.value.toFixed(1) : kpiData.value) : '--';
+        const scoreColor = score >= 80 ? '#2d9f5d' : score >= 50 ? '#ffb84d' : '#e74c3c';
+
+        kpiHTML += `
+        <div class="kpi-card">
+            <div class="kpi-card-header">
+                <span class="kpi-icon">${config.icon}</span>
+                <span class="kpi-name">${config.name}</span>
+            </div>
+            <div class="kpi-score">
+                <span class="kpi-score-label">Ball:</span>
+                <span class="kpi-score-value">${Math.round(score)}</span>
+            </div>
+            <div class="kpi-progress-bar">
+                <div class="kpi-progress-fill" style="width: ${Math.min(100, score)}%; background: ${scoreColor};"></div>
+            </div>
+            <div class="kpi-weight">
+                <span>Vazn: ${percentage}%</span>
+                <span>Qiymat: ${displayValue}</span>
+            </div>
+        </div>
+        `;
+    }
+
+    document.getElementById('detail-kpi-breakdown').innerHTML = kpiHTML;
+
+    // Requirements Check
+    let reqHTML = '';
+    if (violations.length === 0) {
+        reqHTML = '<div class="requirement-item met"><span class="requirement-icon">✅</span><span class="requirement-text">Barcha minimum talablar bajarilgan</span></div>';
+    } else {
+        violations.forEach(v => {
+            const metricName = window.KPI_CONFIG[v.metric]?.name || v.metric;
+            reqHTML += `
+            <div class="requirement-item violation">
+                <span class="requirement-icon">⚠️</span>
+                <span class="requirement-text"><strong>${metricName}:</strong> ${v.actual.toFixed(1)} < ${v.required} kerak (oyuti: -${v.penalty} ball)</span>
+            </div>
+            `;
+        });
+    }
+
+    document.getElementById('detail-requirements').innerHTML = reqHTML;
+    modal.style.display = 'flex';
+}
+
+function closeDetailModal() {
+    const modal = document.getElementById('company-details-modal');
+    if (modal) modal.style.display = 'none';
 }
 
 // ===================================
