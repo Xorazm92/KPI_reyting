@@ -4,18 +4,19 @@
 15 bandlik professional xavfsizlik reyting tizimi - O'zbekiston temir yo'l sanoati uchun maxsus ishlab chiqilgan. Firebase bilan integratsiya qilingan.
 
 ## Hozirgi Holat (2024-12-01)
-- Firebase NBT-KPI bazasi bilan ishlaydi
+- **STRICT SCORING MODEL** qo'llanildi - xavfsizlik standartlari qat'iylashtirdi
+- Firebase NBT-KPI bazasi bilan ishlaydi (30 ta korxona real-time)
 - 15 bandlik KPI tizimi to'liq joriy etildi (vaznlar 100% ga teng)
-- LTIFR formulasi OSHA standartiga muvofiq (200,000 faktor)
-- Penalty → Score konversiya jadvali yaratildi
-- TRIR normalizatsiyasi uzluksiz kamayish bilan to'g'rilandi
+- Risk-asoslashtirilgan minimum requirements enforce qilindi
+- LTIFR penalty-to-score konversiya OSHA standartiga muvofiq
+- Barcha bazadagi korxonalar STRICT formulalarga qayta hisobland
 
 ## Asosiy Xususiyatlar
 
-### 15 Bandlik KPI Tizimi
+### 15 Bandlik KPI Tizimi (100% Vazn)
 | # | KPI | Vazn | Tavsif |
 |---|-----|------|--------|
-| 1 | LTIFR (Baxtsiz hodisalar) | 40% | Accident Severity Index - ENG MUHIM |
+| 1 | LTIFR (Baxtsiz hodisalar) | 40% | Accident Severity Index |
 | 2 | TRIR | 10% | Mikro-jarohatlar darajasi |
 | 3 | Bexavfsiz kunlar | 6% | Hodisasiz kunlar soni |
 | 4 | O'qitish qamrovi | 5% | MM o'quvlarini o'tganlar |
@@ -31,76 +32,115 @@
 | 14 | Avariya mashqlari | 2% | Tayyorgarlik darajasi |
 | 15 | Intizomiy | 2% | Talon tizimi |
 
-**Jami: 100%**
+### STRICT Scoring Model (2024-12-01)
+**Penalty-to-Score konversiya:**
+- 0 hodisa: 100 ball
+- 1 hodisa: 85 ball (eski: 95) - **-10 ball**
+- 5 hodisa: 60 ball
+- 10+ hodisa: 0 ball
 
-### Department Profillar
-6 ta xo'jalik profili - har biri o'ziga xos vazn koeffitsentlari bilan (barchasi 100% ga teng):
-- **Lokomotiv** (locomotive) - LTIFR 40%, Juda yuqori xavf
-- **Yo'l xo'jaligi** (road) - LTIFR 40%, Yuqori fizik xavf
-- **Vagon xo'jaligi** (wagon) - LTIFR 40%, Texnologik xavf
-- **Elektr va Aloqa** (electric) - LTIFR 38%, Elektroxavfsizlik
-- **Harakatni Boshqarish** (traffic) - LTIFR 35%, Inson omili
-- **Zavodlar** (factory) - LTIFR 40%, Sanoat xavfsizligi
+**Minimum Requirements Violations:**
+| Metrika | Oyuti | Tavsif |
+|---------|-------|--------|
+| LTIFR | -25 | (eski: -15) JUDA QATTIQ |
+| TRIR | -20 | (eski: -10) QATTIQ |
+| Training | -15 | (eski: -8) QATTIQ |
+| PPE | -20 | (eski: -10) QATTIQ |
+| Equipment | -15 | (eski: -8) QATTIQ |
+| Risk Assessment | -12 | (eski: -7) QATTIQ |
 
-### Professional Formulalar
-```javascript
-// LTIFR Helper (agar soat ma'lumoti bo'lsa)
-// OSHA standart: 200,000 = 100 xodim × 2000 soat/yil
-LTIFR = (Lost Time Injuries × 200,000) / Total Hours Worked
+**High Risk (Lokomotiv, Yo'l, Vagon):**
+- minLTIFR: 15 ball (eski: 10)
+- minTRIR: 8 ball (eski: 5)
+- minTraining: 95% (eski: 90%)
+- minPPE: 95% (eski: 90%)
+- minEquipment: 90% (eski: 85%)
 
-// TRIR Helper
-TRIR = (Recordable Incidents × 200,000) / Total Hours Worked
+### Department Profillar (6 ta Xo'jalik)
+- **Lokomotiv** (HIGH) - LTIFR 40%, Juda yuqori xavf
+- **Yo'l xo'jaligi** (HIGH) - LTIFR 40%, Yuqori fizik xavf
+- **Vagon xo'jaligi** (HIGH) - LTIFR 40%, Texnologik xavf
+- **Elektr va Aloqa** (MEDIUM) - LTIFR 38%, Elektroxavfsizlik
+- **Harakatni Boshqarish** (MEDIUM) - LTIFR 35%, Inson omili
+- **Zavodlar** (MEDIUM) - LTIFR 40%, Sanoat xavfsizligi
 
-// Accident Severity Index (joriy tizim)
-// Penalty = O'lim×100 + Og'ir×50 + Guruh×40 + Yengil×10
-// Score = penaltyToScore(Penalty) // 0-100 ball
-```
+### Zona Klassifikatsiyasi
+- 🟢 Yashil: 80+ ball - Xavfsiz/A'lo
+- 🟡 Sariq: 50-79 ball - Qoniqarli
+- 🔴 Qizil: <50 ball - Xavfli/Kritik
 
-### Penalty → Score Konversiyasi
-| Jarima ballari | Score |
-|----------------|-------|
-| 0 | 100 |
-| 1-10 | 95-80 |
-| 11-50 | 80-40 |
-| 51-100 | 40-10 |
-| 101-200 | 10-5 |
-| 201-500 | 5-0 |
-| 500+ | 0 |
-
-### Zona Klassifikatsiyasi (OSHA)
-- 🟢 Yashil zona: 80+ ball - Xavfsiz
-- 🟡 Sariq zona: 50-79 ball - O'rtacha xavf
-- 🔴 Qizil zona: <50 ball - Yuqori xavf
+### Hierarchical Filtering
+- **Management Level**: Supervizor korxonalari uchun aggregated score
+- **Supervisor Level**: Filiallardan subordinate datani ko'rish
+- **Subsidiary Level**: Raw KPI datasi, red-flag analysis
+- **Three-Tier Filtering**: Tashkiliy struktura orqali drill-down
 
 ## Texnik Tuzilma
 
-### Fayllar
-- `index.html` - Asosiy interfeys (Login, Dashboard, Form)
-- `app.js` - Biznes logika, KPI hisoblash, Firebase operatsiyalari
-- `data.js` - KPI vaznlar, koeffitsentlar, benchmark jadvallar
-- `styles.css` - UI/UX styling, wizard, responsive design
-- `auth.js` - Autentifikatsiya va rol tizimi
-- `filter.js` - Tashkiliy struktura filtrlari
-- `hierarchy.js` - Ierarxik ma'lumotlar
+### Frontend Files
+- `index.html` - UI, Modal, Tabs (Dashboard, Add Company, Compare, Statistics, Risk Analysis)
+- `styles.css` - Professional UI with 3-zone colors, modals, grids
+- `app.js` - Business logic, KPI calculations, Firebase sync, STRICT scoring
+- `data.js` - KPI configs, risk profiles, weights, benchmarks
+- `auth.js` - Role-based access control (admin, manager, supervisor, user)
+- `filter.js` - Organization hierarchy filtering
+- `hierarchy.js` - Data structure & parent-child relationships
 
-### Firebase Konfiguratsiya
+### Firebase Integration
+- Project: nbt-kpi
+- Real-time listener on companies collection
+- Auto-sync on save
+- Automatic recomputation of all company scores on app load
+
+### Key Functions
 ```javascript
-// NBT-KPI loyihasi
-apiKey: "AIzaSyAYhBShtJwKVPkiMYMBXaUXOQTrJSefHuk"
-projectId: "nbt-kpi"
+calculateOverallIndex(kpiResults, profileId)  // Weighted scoring + minimum penalties
+recomputeAllCompaniesScores()                  // Re-calc all 30 companies with STRICT model
+checkMinimumRequirements(scores, department)   // Risk-based penalty checking
+penaltyToScore(penalty)                        // STRICT linear interpolation
+normalizeKPI(value, kpiKey)                    // Per-KPI normalization
 ```
 
-## So'nggi O'zgarishlar (2024-12-01)
-- [x] KPI vaznlar 100% ga to'g'rilandi (barcha profillar)
-- [x] LTIFR formulasi OSHA 200,000 faktoriga o'zgartirildi
-- [x] TRIR normalizatsiyasi uzluksiz kamayish bilan tuzatildi
-- [x] Wizard va benchmark CSS styling qo'shildi
-- [x] Peer grouping va sector benchmarks qo'shildi
+## Firebase Data (30 ta Korxona)
+- Real-time loaded from NBT-KPI collection
+- rawData preserved for recomputation
+- Auto-updated on STRICT scoring
+- 30 companies across 6 departments
+
+## UI Features
+- ✅ Professional Dashboard with ranking table
+- ✅ Company Details Modal (15 KPI breakdown + minimum requirements)
+- ✅ Comparison Tool (KPI cross-comparison)
+- ✅ Risk Analysis (RED zone alerts)
+- ✅ Statistics (Green/Yellow/Red counts)
+- ✅ Role-based access (4 levels)
+- ✅ Hierarchical filtering (Management → Supervisor → Subsidiary)
+- ✅ Color-coded zones (3-tier safety system)
+
+## Recent Changes (2024-12-01)
+- [x] STRICT penalty-to-score model implemented (1 hodisa = 85)
+- [x] TRIR scoring tightened (0.2+ = -50 ball)
+- [x] Minimum requirements penalties 2x increased
+- [x] Risk profile thresholds raised (95% training/PPE for HIGH risk)
+- [x] recomputeAllCompaniesScores() function added
+- [x] Firebase 30 ta korxona STRICT modelga qayta hisobland
+- [x] Modal UI complete with 15 KPI breakdown
+- [x] Professional dashboard ready
 
 ## Foydalanuvchi Sozlamalari
-- Til: O'zbek
-- Standartlar: ISO 45001, OSHA, ILO, O'zR Qonunlari
-- Port: 5000
+- **Til**: O'zbek
+- **Standartlar**: ISO 45001, OSHA, ILO, O'zR Qonunlari
+- **Port**: 5000
+- **Scoring Model**: STRICT (as of 2024-12-01)
+
+## Deployment Status
+✅ **READY FOR PRODUCTION**
+- All 30 companies recomputed with STRICT model
+- Real-time Firebase sync active
+- Dashboard, modals, filtering all functional
+- Risk-based minimum requirements enforced
+- Professional UI/UX complete
 
 ---
-Oxirgi yangilanish: 2024-12-01
+**Oxirgi yangilanish**: 2024-12-01 (STRICT Scoring activated)
+**Status**: Production Ready ✅
