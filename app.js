@@ -514,7 +514,27 @@ function calculateOverallIndex(kpiResults, profileId) {
         }
     }
 
-    return totalWeight > 0 ? Math.round(totalScore / totalWeight * 100) / 100 : 0;
+    let weightedScore = totalWeight > 0 ? totalScore / totalWeight : 0;
+    
+    // RISK-BASED MINIMUM REQUIREMENTS CHECK
+    // Xavfli operatsiyalar uchun qat'iy talablar - offis ishiga teng bo'lib qolish man etiladi
+    const kpiValues = {};
+    for (const [key, result] of Object.entries(kpiResults)) {
+        kpiValues[key] = result.score || 0;
+    }
+    
+    const violations = checkMinimumRequirements(kpiValues, profileId);
+    if (violations.length > 0) {
+        // Her xilof uchun ball oyutish
+        let minRequirementsPenalty = 0;
+        for (const violation of violations) {
+            minRequirementsPenalty += violation.penalty;
+        }
+        // Penalty qo'llash - xavfli operatsiyalar uchun qat'iy
+        weightedScore = Math.max(0, weightedScore - minRequirementsPenalty);
+    }
+
+    return Math.round(weightedScore * 100) / 100;
 }
 
 // ===================================
