@@ -266,6 +266,77 @@ function calculateTRIR(recordableIncidents, totalHoursWorked) {
     return (recordableIncidents * 200000) / totalHoursWorked;
 }
 
+// Risk-adjusted scoring system
+// Har bir korxona uchun risk profili asosida qat'iy minimum talablar
+function getRiskProfile(department) {
+    const riskClass = window.RISK_CLASSIFICATION[department] || 'MEDIUM';
+    return window.RISK_PROFILES[riskClass];
+}
+
+// Minimum talablarni tekshirish - xavfni inobatga olgan
+function checkMinimumRequirements(scores, department) {
+    const risk = getRiskProfile(department);
+    const violations = [];
+    
+    // CRITICAL SAFETY METRICS - Xavfga asosan qat'iy
+    if (scores.ltifr && scores.ltifr < risk.minLTIFR) {
+        violations.push({ 
+            metric: 'ltifr', 
+            required: risk.minLTIFR, 
+            actual: scores.ltifr,
+            penalty: 15  // 15 ball oyuti
+        });
+    }
+    
+    if (scores.trir && scores.trir < risk.minTRIR) {
+        violations.push({ 
+            metric: 'trir', 
+            required: risk.minTRIR, 
+            actual: scores.trir,
+            penalty: 10
+        });
+    }
+    
+    // CRITICAL COMPLIANCE METRICS
+    if (scores.training && scores.training < risk.minTraining) {
+        violations.push({ 
+            metric: 'training', 
+            required: risk.minTraining, 
+            actual: scores.training,
+            penalty: 8
+        });
+    }
+    
+    if (scores.equipment && scores.equipment < risk.minEquipment) {
+        violations.push({ 
+            metric: 'equipment', 
+            required: risk.minEquipment, 
+            actual: scores.equipment,
+            penalty: 8
+        });
+    }
+    
+    if (scores.ppe && scores.ppe < risk.minPPE) {
+        violations.push({ 
+            metric: 'ppe', 
+            required: risk.minPPE, 
+            actual: scores.ppe,
+            penalty: 10
+        });
+    }
+    
+    if (scores.raCoverage && scores.raCoverage < risk.minRACoverage) {
+        violations.push({ 
+            metric: 'raCoverage', 
+            required: risk.minRACoverage, 
+            actual: scores.raCoverage,
+            penalty: 7
+        });
+    }
+    
+    return violations;
+}
+
 // Penalty → Score konversiyasi (xalqaro standart)
 function penaltyToScore(penalty) {
     // Professional formula - linear interpolation

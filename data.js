@@ -2,6 +2,61 @@
 // Xalqaro standartlar: ISO 45001, OSHA, ILO va O'zbekiston mehnat qonunchiligi asosida
 
 // ========================================
+// RISK PROFILES - Xavfsizlik talablarining darajasi
+// ISO 45001, OSHA va O'zbekiston talablari asosida
+// ========================================
+window.RISK_PROFILES = {
+    'HIGH': {
+        name: 'Juda Yuqori Xavf',
+        coefficient: 1.0,        // 100% - To'liq talablar
+        minLTIFR: 10,           // Minimum standard
+        minTRIR: 5,
+        penaltyMultiplier: 1.5, // Xavfni neglect qilish uchun 50% oyuti
+        minTraining: 90,        // O'qitish 90% bo'lishi kerak
+        minEquipment: 85,       // Uskuna nazorati 85% bo'lishi kerak
+        minPPE: 90,             // PPE ta'minoti 90% bo'lishi kerak
+        minRACoverage: 80,      // Risk assessment 80% bo'lishi kerak
+        description: "Lokomotiv, Vagon, Yo'l - Mashina operatsi"
+    },
+    'MEDIUM': {
+        name: 'O\'rtacha Xavf',
+        coefficient: 0.7,
+        minLTIFR: 5,
+        minTRIR: 3,
+        penaltyMultiplier: 1.2,
+        minTraining: 80,
+        minEquipment: 75,
+        minPPE: 80,
+        minRACoverage: 70,
+        description: "Elektr, Harakatni Boshqarish"
+    },
+    'LOW': {
+        name: 'Past Xavf',
+        coefficient: 0.4,
+        minLTIFR: 0,
+        minTRIR: 0,
+        penaltyMultiplier: 1.0,
+        minTraining: 60,
+        minEquipment: 50,
+        minPPE: 60,
+        minRACoverage: 50,
+        description: "Ofis ishlari, Zavodlar"
+    }
+};
+
+// ========================================
+// RISK KLASSIFIKATSIYASI - Korxonalarni turga ajratish
+// ========================================
+window.RISK_CLASSIFICATION = {
+    'locomotive': 'HIGH',      // Lokomotiv operatorlari
+    'wagon': 'HIGH',           // Vagon operatorlari
+    'road': 'HIGH',            // Yo'l ishlari - fizik xavf juda yuqori
+    'electric': 'MEDIUM',      // Elektr - o'rta xavf
+    'traffic': 'MEDIUM',       // Harakatni boshqarish - o'rta xavf
+    'factory': 'MEDIUM'        // Zavodlar - o'rta xavf
+};
+
+// ========================================
 // TEMIR YO'L XAVFSIZLIK KPI VAZNLARI
 // Rail-optimized weights (15 band)
 // ========================================
