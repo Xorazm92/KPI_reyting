@@ -936,6 +936,11 @@ function loadLocal() {
 
 function refreshUI() {
     console.log("🔄 refreshUI: UI yangilanmoqda...");
+    // RECOMPUTE all companies with NEW STRICT scoring model
+    if (companies.length > 0 && companies[0].rawData) {
+        console.log("🔐 Barcha korxonalarni STRICT modelga qayta hisoblash...");
+        recomputeAllCompaniesScores();
+    }
     calculateParentCompanyRatings(); // Calculate parent ratings from subsidiaries
     calculateRankings();
     initializeOrganizationFilter(); // Initialize filter selector
@@ -1053,6 +1058,176 @@ function resetForm() {
 
     // Set default values if needed
     document.getElementById('company-profile').value = 'factory';
+}
+
+// RECOMPUTE ALL COMPANIES WITH NEW STRICT SCORING
+function recomputeAllCompaniesScores() {
+    console.log("🔄 Barcha korxonalarning scorelari STRICT modelga qayta hisoblana boshlandi...");
+    
+    companies.forEach(company => {
+        if (!company.rawData) return; // Skip if no raw data
+        
+        const formData = company.rawData;
+        const kpiResults = {};
+        
+        // Recalculate all KPIs with new strict formulas
+        const companyData = {
+            employees: parseFloat(company.employees) || 0,
+            totalHours: parseFloat(company.totalHours) || 0
+        };
+        
+        const calculator = new KPICalculator(companyData);
+        
+        // LTIFR - NEW STRICT
+        kpiResults.ltifr = {
+            value: calculator.calculateAccidentSeverity(
+                parseFloat(formData.fatal) || 0,
+                parseFloat(formData.severe) || 0,
+                parseFloat(formData.group) || 0,
+                parseFloat(formData.light) || 0
+            ),
+            score: 0
+        };
+        kpiResults.ltifr.score = normalizeKPI(kpiResults.ltifr.value, 'ltifr');
+        
+        // TRIR - NEW STRICT MODEL
+        kpiResults.trir = {
+            value: calculator.calculateMicroInjury(parseFloat(formData.microInjuries) || 0),
+            score: 0
+        };
+        kpiResults.trir.score = normalizeKPI(kpiResults.trir.value, 'trir');
+        
+        // Rest of KPIs...
+        kpiResults.noincident = {
+            value: calculator.calculateNoincident(parseFloat(formData.noincident) || 0),
+            score: 0
+        };
+        kpiResults.noincident.score = normalizeKPI(kpiResults.noincident.value, 'noincident');
+        
+        kpiResults.training = {
+            value: calculator.calculateTrainingEffectiveness(
+                parseFloat(formData.trainingPassed) || 0,
+                parseFloat(formData.trainingRequired) || 1
+            ),
+            score: 0
+        };
+        kpiResults.training.score = normalizeKPI(kpiResults.training.value, 'training');
+        
+        kpiResults.raCoverage = {
+            value: calculator.calculateRACoverage(
+                parseFloat(formData.assessed) || 0,
+                parseFloat(formData.totalWorkplaces) || 1
+            ),
+            score: 0
+        };
+        kpiResults.raCoverage.score = normalizeKPI(kpiResults.raCoverage.value, 'raCoverage');
+        
+        kpiResults.nearMiss = {
+            value: calculator.calculateNearMissCulture(parseFloat(formData.reports) || 0),
+            score: 0
+        };
+        kpiResults.nearMiss.score = normalizeKPI(kpiResults.nearMiss.value, 'nearMiss');
+        
+        kpiResults.responseTime = {
+            value: calculator.calculateResponseIndex(
+                parseFloat(formData.closedIssues) || 0,
+                parseFloat(formData.totalIssues) || 1
+            ),
+            score: 0
+        };
+        kpiResults.responseTime.score = normalizeKPI(kpiResults.responseTime.value, 'responseTime');
+        
+        kpiResults.prevention = {
+            value: calculator.calculatePrevention(
+                parseFloat(formData.mmBudget) || 0,
+                parseFloat(formData.totalBudget) || 1
+            ),
+            score: 0
+        };
+        kpiResults.prevention.score = normalizeKPI(kpiResults.prevention.value, 'prevention');
+        
+        kpiResults.ppe = {
+            value: calculator.calculatePPECompliance(
+                parseFloat(formData.ppeEquipped) || 0,
+                parseFloat(formData.ppeRequired) || 1
+            ),
+            score: 0
+        };
+        kpiResults.ppe.score = normalizeKPI(kpiResults.ppe.value, 'ppe');
+        
+        kpiResults.equipment = {
+            value: calculator.calculateHighRiskControl(
+                parseFloat(formData.equipmentInspected) || 0,
+                parseFloat(formData.equipmentTotal) || 1,
+                parseFloat(formData.authorizedStaff) || 0,
+                parseFloat(formData.totalStaffEquipment) || 1
+            ),
+            score: 0
+        };
+        kpiResults.equipment.score = normalizeKPI(kpiResults.equipment.value, 'equipment');
+        
+        kpiResults.inspection = {
+            value: calculator.calculateInspectionExecution(
+                parseFloat(formData.inspectionDone) || 0,
+                parseFloat(formData.inspectionPlanned) || 1
+            ),
+            score: 0
+        };
+        kpiResults.inspection.score = normalizeKPI(kpiResults.inspection.value, 'inspection');
+        
+        kpiResults.occupational = {
+            value: calculator.calculateOccupational(parseFloat(formData.occupational) || 0),
+            score: 0
+        };
+        kpiResults.occupational.score = normalizeKPI(kpiResults.occupational.value, 'occupational');
+        
+        kpiResults.compliance = {
+            value: calculator.calculateAuditEffectiveness(
+                parseFloat(formData.auditIssues) || 0,
+                parseFloat(formData.auditTotal) || 1
+            ),
+            score: 0
+        };
+        kpiResults.compliance.score = normalizeKPI(kpiResults.compliance.value, 'compliance');
+        
+        kpiResults.emergency = {
+            value: calculator.calculateEmergencyPreparedness(
+                parseFloat(formData.emergencyParticipated) || 0,
+                parseFloat(formData.emergencyPlanned) || 1
+            ),
+            score: 0
+        };
+        kpiResults.emergency.score = normalizeKPI(kpiResults.emergency.value, 'emergency');
+        
+        kpiResults.violations = {
+            value: calculator.calculateDisciplineIndex(
+                parseFloat(formData.ticketRed) || 0,
+                parseFloat(formData.ticketYellow) || 0,
+                parseFloat(formData.ticketGreen) || 0
+            ),
+            score: 0
+        };
+        kpiResults.violations.score = normalizeKPI(kpiResults.violations.value, 'violations');
+        
+        // Update company KPIs
+        company.kpis = kpiResults;
+        
+        // Recalculate overall index with NEW STRICT rules
+        const overallIndex = calculateOverallIndex(kpiResults, company.profile);
+        company.overallIndex = overallIndex;
+        company.zone = getZone(overallIndex).name;
+        
+        // Update Firebase if connected
+        if (db && company.id) {
+            db.collection("companies").doc(company.id).update({
+                kpis: kpiResults,
+                overallIndex: overallIndex,
+                zone: company.zone
+            }).catch(err => console.error("❌ Recompute update error:", err));
+        }
+    });
+    
+    console.log("✅ Barcha korxonalar STRICT modelga qayta hisobland!");
 }
 
 function calculateRankings() {
