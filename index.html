@@ -650,6 +650,49 @@
                 </div>
             </section>
 
+            <!-- Company Details Modal -->
+            <div id="company-details-modal" class="modal" style="display: none;">
+                <div class="modal-content modal-large">
+                    <div class="modal-header">
+                        <h2 id="detail-company-name">Korxona Tafsiloti</h2>
+                        <button class="modal-close" onclick="closeDetailModal()">✕</button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Company Header -->
+                        <div class="detail-header">
+                            <div class="detail-stat">
+                                <span class="detail-label">Xo'jalik Profili:</span>
+                                <span id="detail-profile" class="detail-value">--</span>
+                            </div>
+                            <div class="detail-stat">
+                                <span class="detail-label">Xavfsizlik Darajasi:</span>
+                                <span id="detail-risk-level" class="detail-value">--</span>
+                            </div>
+                            <div class="detail-stat">
+                                <span class="detail-label">MM Indeksi:</span>
+                                <span id="detail-overall-score" class="detail-value">--</span>
+                            </div>
+                            <div class="detail-stat">
+                                <span class="detail-label">Zona:</span>
+                                <span id="detail-zone" class="detail-value">--</span>
+                            </div>
+                        </div>
+
+                        <!-- 15 KPI Breakdown -->
+                        <h3>📊 15 Bandlik KPI Baholash</h3>
+                        <div id="detail-kpi-breakdown" class="kpi-breakdown-grid">
+                            <!-- Will be populated by JS -->
+                        </div>
+
+                        <!-- Minimum Requirements Check -->
+                        <h3>⚠️ Minimum Talablar Tekshiruvi</h3>
+                        <div id="detail-requirements" class="requirements-list">
+                            <!-- Will be populated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Statistics Tab -->
             <section class="tab-content" id="statistics-tab">
                 <div class="section-header">
