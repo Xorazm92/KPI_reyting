@@ -20,6 +20,7 @@ The project is fully set up and running in the Replit environment:
 - ✅ 30 companies currently loaded from Firebase database
 - ✅ All features operational (rating, comparison, statistics, hierarchical views)
 - ✅ Deployment configured for static hosting
+- ✅ **Login authentication added** - session-based protection with test accounts
 
 ## Technology Stack
 
@@ -41,9 +42,10 @@ The project is fully set up and running in the Replit environment:
 
 ```
 .
-├── index.html           # Main application interface
+├── index.html           # Main application interface with login form
 ├── app.js              # Core application logic & KPI calculations
-├── styles.css          # Application styling
+├── auth.js             # Authentication system (login/logout)
+├── styles.css          # Application styling (includes login screen)
 ├── hierarchy.js        # Hierarchical organization module
 ├── roles.js            # Role-based access control
 ├── data.js             # Department profiles and KPI weights
@@ -198,13 +200,31 @@ To deploy, use the Replit deployment feature in the UI.
 - Verify Firebase configuration in app.js
 - Check browser console for error messages
 
+## Authentication System
+
+Added simple session-based login protection with 4 test accounts:
+- **admin** / admin123
+- **manager** / manager123
+- **supervisor** / super123
+- **user** / user123
+
+Users must log in before accessing the main dashboard. Session is stored in browser sessionStorage and persists across page refreshes until logout.
+
 ## Recent Changes
 
-**2025-12-01**: Project imported and set up in Replit environment
+**2025-12-01**: Complete auth system implementation
+- Added login screen with custom styling
+- Implemented session-based authentication (auth.js)
+- Added logout button in header
+- Current username displayed in top-right
+- All 30 companies protected behind login
+
+**Earlier - 2025-12-01**: Project imported and set up in Replit environment
 - Configured Python HTTP server workflow on port 5000
 - Verified Firebase connectivity
 - Configured static deployment
-- All 30 companies loaded successfully
+- Enhanced ltifr (accident severity) to 40% weight
+- Improved hierarchical filtering with name-based fallback matching
 
 ## Version Information
 
