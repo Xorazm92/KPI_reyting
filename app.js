@@ -28,100 +28,100 @@ try {
 // O'zbekiston mehnat qonunchiligiga moslashtirilgan
 // ===================================
 const KPI_CONFIG = {
-    ltifr: { 
-        name: "Baxtsiz hodisalar (LTIFR)", 
-        weight: 0.40, 
-        lowerIsBetter: true, 
+    ltifr: {
+        name: "Baxtsiz hodisalar (LTIFR)",
+        weight: 0.40,
+        lowerIsBetter: true,
         critical: true,
         icon: "⚠️",
         description: "Lost Time Injury Frequency Rate"
     },
-    trir: { 
-        name: "TRIR / Mikro-jarohatlar", 
-        weight: 0.10, 
-        lowerIsBetter: true, 
+    trir: {
+        name: "TRIR / Mikro-jarohatlar",
+        weight: 0.10,
+        lowerIsBetter: true,
         critical: true,
         icon: "🩹",
         description: "Total Recordable Incident Rate"
     },
-    noincident: { 
-        name: "Bexavfsiz kunlar", 
-        weight: 0.06, 
+    noincident: {
+        name: "Bexavfsiz kunlar",
+        weight: 0.06,
         lowerIsBetter: false,
         icon: "📅"
     },
-    training: { 
-        name: "O'qitish qamrovi", 
-        weight: 0.05, 
+    training: {
+        name: "O'qitish qamrovi",
+        weight: 0.05,
         lowerIsBetter: false,
         icon: "📚"
     },
-    equipment: { 
-        name: "Uskuna nazorati", 
-        weight: 0.06, 
+    equipment: {
+        name: "Uskuna nazorati",
+        weight: 0.06,
         lowerIsBetter: false,
         icon: "🔧",
         description: "Rolling stock va uskunalar"
     },
-    ppe: { 
-        name: "SHHV ta'minoti", 
-        weight: 0.05, 
+    ppe: {
+        name: "SHHV ta'minoti",
+        weight: 0.05,
         lowerIsBetter: false,
         icon: "🦺"
     },
-    raCoverage: { 
-        name: "Xavfni baholash", 
-        weight: 0.05, 
+    raCoverage: {
+        name: "Xavfni baholash",
+        weight: 0.05,
         lowerIsBetter: false,
         icon: "🎯"
     },
-    prevention: { 
-        name: "Profilaktika xarajatlari", 
-        weight: 0.04, 
+    prevention: {
+        name: "Profilaktika xarajatlari",
+        weight: 0.04,
         lowerIsBetter: false,
         icon: "💰",
         description: "CAPEX/OPEX ratio"
     },
-    nearMiss: { 
-        name: "Xabarlar (Near Miss)", 
-        weight: 0.04, 
+    nearMiss: {
+        name: "Xabarlar (Near Miss)",
+        weight: 0.04,
         lowerIsBetter: false,
         icon: "📢",
         description: "Safety Culture indicator"
     },
-    responseTime: { 
-        name: "Murojaatga reaksiya", 
-        weight: 0.04, 
+    responseTime: {
+        name: "Murojaatga reaksiya",
+        weight: 0.04,
         lowerIsBetter: false,
         icon: "⏱️"
     },
-    inspection: { 
-        name: "Nazorat rejasi", 
-        weight: 0.03, 
+    inspection: {
+        name: "Nazorat rejasi",
+        weight: 0.03,
         lowerIsBetter: false,
         icon: "📋"
     },
-    occupational: { 
-        name: "Kasbiy kasalliklar", 
-        weight: 0.02, 
+    occupational: {
+        name: "Kasbiy kasalliklar",
+        weight: 0.02,
         lowerIsBetter: true,
         icon: "🏥"
     },
-    compliance: { 
-        name: "Audit samaradorligi", 
-        weight: 0.02, 
+    compliance: {
+        name: "Audit samaradorligi",
+        weight: 0.02,
         lowerIsBetter: false,
         icon: "✅"
     },
-    emergency: { 
-        name: "Avariya mashqlari", 
-        weight: 0.02, 
+    emergency: {
+        name: "Avariya mashqlari",
+        weight: 0.02,
         lowerIsBetter: false,
         icon: "🚨"
     },
-    violations: { 
-        name: "Intizomiy buzilishlar", 
-        weight: 0.02, 
+    violations: {
+        name: "Intizomiy buzilishlar",
+        weight: 0.02,
         lowerIsBetter: true,
         icon: "🎫"
     }
@@ -277,63 +277,63 @@ function getRiskProfile(department) {
 function checkMinimumRequirements(scores, department) {
     const risk = getRiskProfile(department);
     const violations = [];
-    
+
     // CRITICAL SAFETY METRICS - Xavfga asosan qat'iy
     if (scores.ltifr && scores.ltifr < risk.minLTIFR) {
-        violations.push({ 
-            metric: 'ltifr', 
-            required: risk.minLTIFR, 
+        violations.push({
+            metric: 'ltifr',
+            required: risk.minLTIFR,
             actual: scores.ltifr,
             penalty: 25  // QATTIQ: 25 ball oyuti (OLD: 15)
         });
     }
-    
+
     if (scores.trir && scores.trir < risk.minTRIR) {
-        violations.push({ 
-            metric: 'trir', 
-            required: risk.minTRIR, 
+        violations.push({
+            metric: 'trir',
+            required: risk.minTRIR,
             actual: scores.trir,
             penalty: 20  // QATTIQ: 20 ball oyuti (OLD: 10)
         });
     }
-    
+
     // CRITICAL COMPLIANCE METRICS
     if (scores.training && scores.training < risk.minTraining) {
-        violations.push({ 
-            metric: 'training', 
-            required: risk.minTraining, 
+        violations.push({
+            metric: 'training',
+            required: risk.minTraining,
             actual: scores.training,
             penalty: 15  // QATTIQ: 15 ball oyuti (OLD: 8)
         });
     }
-    
+
     if (scores.equipment && scores.equipment < risk.minEquipment) {
-        violations.push({ 
-            metric: 'equipment', 
-            required: risk.minEquipment, 
+        violations.push({
+            metric: 'equipment',
+            required: risk.minEquipment,
             actual: scores.equipment,
             penalty: 15  // QATTIQ: 15 ball oyuti (OLD: 8)
         });
     }
-    
+
     if (scores.ppe && scores.ppe < risk.minPPE) {
-        violations.push({ 
-            metric: 'ppe', 
-            required: risk.minPPE, 
+        violations.push({
+            metric: 'ppe',
+            required: risk.minPPE,
             actual: scores.ppe,
             penalty: 20  // QATTIQ: 20 ball oyuti (OLD: 10)
         });
     }
-    
+
     if (scores.raCoverage && scores.raCoverage < risk.minRACoverage) {
-        violations.push({ 
-            metric: 'raCoverage', 
-            required: risk.minRACoverage, 
+        violations.push({
+            metric: 'raCoverage',
+            required: risk.minRACoverage,
             actual: scores.raCoverage,
             penalty: 12  // QATTIQ: 12 ball oyuti (OLD: 7)
         });
     }
-    
+
     return violations;
 }
 
@@ -516,14 +516,14 @@ function calculateOverallIndex(kpiResults, profileId) {
     }
 
     let weightedScore = totalWeight > 0 ? totalScore / totalWeight : 0;
-    
+
     // RISK-BASED MINIMUM REQUIREMENTS CHECK
     // Xavfli operatsiyalar uchun qat'iy talablar - offis ishiga teng bo'lib qolish man etiladi
     const kpiValues = {};
     for (const [key, result] of Object.entries(kpiResults)) {
         kpiValues[key] = result.score || 0;
     }
-    
+
     const violations = checkMinimumRequirements(kpiValues, profileId);
     if (violations.length > 0) {
         // Her xilof uchun ball oyutish
@@ -703,6 +703,8 @@ function addOrUpdateCompany(formData) {
         const companyData = {
             id: id,
             name: formData.name,
+            level: formData.level,
+            parent: formData.parent,
             profile: profileId,
             employees: parseFloat(formData.employees) || 0,
             totalHours: parseFloat(formData.totalHours) || 0,
@@ -974,8 +976,8 @@ function editCompany(id) {
 
         // Set Parent after dropdown is populated
         const parentSelect = document.getElementById('company-parent');
-        if (parentSelect && company.supervisorId) {
-            parentSelect.value = company.supervisorId;
+        if (parentSelect && company.parent) {
+            parentSelect.value = company.parent;
         }
     }
 
@@ -1063,21 +1065,21 @@ function resetForm() {
 // RECOMPUTE ALL COMPANIES WITH NEW STRICT SCORING
 function recomputeAllCompaniesScores() {
     console.log("🔄 Barcha korxonalarning scorelari STRICT modelga qayta hisoblana boshlandi...");
-    
+
     companies.forEach(company => {
         if (!company.rawData) return; // Skip if no raw data
-        
+
         const formData = company.rawData;
         const kpiResults = {};
-        
+
         // Recalculate all KPIs with new strict formulas
         const companyData = {
             employees: parseFloat(company.employees) || 0,
             totalHours: parseFloat(company.totalHours) || 0
         };
-        
+
         const calculator = new KPICalculator(companyData);
-        
+
         // LTIFR - NEW STRICT
         kpiResults.ltifr = {
             value: calculator.calculateAccidentSeverity(
@@ -1089,21 +1091,21 @@ function recomputeAllCompaniesScores() {
             score: 0
         };
         kpiResults.ltifr.score = normalizeKPI(kpiResults.ltifr.value, 'ltifr');
-        
+
         // TRIR - NEW STRICT MODEL
         kpiResults.trir = {
             value: calculator.calculateMicroInjury(parseFloat(formData.microInjuries) || 0),
             score: 0
         };
         kpiResults.trir.score = normalizeKPI(kpiResults.trir.value, 'trir');
-        
+
         // Rest of KPIs...
         kpiResults.noincident = {
             value: calculator.calculateNoincident(parseFloat(formData.noincident) || 0),
             score: 0
         };
         kpiResults.noincident.score = normalizeKPI(kpiResults.noincident.value, 'noincident');
-        
+
         kpiResults.training = {
             value: calculator.calculateTrainingEffectiveness(
                 parseFloat(formData.trainingPassed) || 0,
@@ -1112,7 +1114,7 @@ function recomputeAllCompaniesScores() {
             score: 0
         };
         kpiResults.training.score = normalizeKPI(kpiResults.training.value, 'training');
-        
+
         kpiResults.raCoverage = {
             value: calculator.calculateRACoverage(
                 parseFloat(formData.assessed) || 0,
@@ -1121,13 +1123,13 @@ function recomputeAllCompaniesScores() {
             score: 0
         };
         kpiResults.raCoverage.score = normalizeKPI(kpiResults.raCoverage.value, 'raCoverage');
-        
+
         kpiResults.nearMiss = {
             value: calculator.calculateNearMissCulture(parseFloat(formData.reports) || 0),
             score: 0
         };
         kpiResults.nearMiss.score = normalizeKPI(kpiResults.nearMiss.value, 'nearMiss');
-        
+
         kpiResults.responseTime = {
             value: calculator.calculateResponseIndex(
                 parseFloat(formData.closedIssues) || 0,
@@ -1136,7 +1138,7 @@ function recomputeAllCompaniesScores() {
             score: 0
         };
         kpiResults.responseTime.score = normalizeKPI(kpiResults.responseTime.value, 'responseTime');
-        
+
         kpiResults.prevention = {
             value: calculator.calculatePrevention(
                 parseFloat(formData.mmBudget) || 0,
@@ -1145,7 +1147,7 @@ function recomputeAllCompaniesScores() {
             score: 0
         };
         kpiResults.prevention.score = normalizeKPI(kpiResults.prevention.value, 'prevention');
-        
+
         kpiResults.ppe = {
             value: calculator.calculatePPECompliance(
                 parseFloat(formData.ppeEquipped) || 0,
@@ -1154,7 +1156,7 @@ function recomputeAllCompaniesScores() {
             score: 0
         };
         kpiResults.ppe.score = normalizeKPI(kpiResults.ppe.value, 'ppe');
-        
+
         kpiResults.equipment = {
             value: calculator.calculateHighRiskControl(
                 parseFloat(formData.equipmentInspected) || 0,
@@ -1165,7 +1167,7 @@ function recomputeAllCompaniesScores() {
             score: 0
         };
         kpiResults.equipment.score = normalizeKPI(kpiResults.equipment.value, 'equipment');
-        
+
         kpiResults.inspection = {
             value: calculator.calculateInspectionExecution(
                 parseFloat(formData.inspectionDone) || 0,
@@ -1174,13 +1176,13 @@ function recomputeAllCompaniesScores() {
             score: 0
         };
         kpiResults.inspection.score = normalizeKPI(kpiResults.inspection.value, 'inspection');
-        
+
         kpiResults.occupational = {
             value: calculator.calculateOccupational(parseFloat(formData.occupational) || 0),
             score: 0
         };
         kpiResults.occupational.score = normalizeKPI(kpiResults.occupational.value, 'occupational');
-        
+
         kpiResults.compliance = {
             value: calculator.calculateAuditEffectiveness(
                 parseFloat(formData.auditIssues) || 0,
@@ -1189,7 +1191,7 @@ function recomputeAllCompaniesScores() {
             score: 0
         };
         kpiResults.compliance.score = normalizeKPI(kpiResults.compliance.value, 'compliance');
-        
+
         kpiResults.emergency = {
             value: calculator.calculateEmergencyPreparedness(
                 parseFloat(formData.emergencyParticipated) || 0,
@@ -1198,7 +1200,7 @@ function recomputeAllCompaniesScores() {
             score: 0
         };
         kpiResults.emergency.score = normalizeKPI(kpiResults.emergency.value, 'emergency');
-        
+
         kpiResults.violations = {
             value: calculator.calculateDisciplineIndex(
                 parseFloat(formData.ticketRed) || 0,
@@ -1208,15 +1210,15 @@ function recomputeAllCompaniesScores() {
             score: 0
         };
         kpiResults.violations.score = normalizeKPI(kpiResults.violations.value, 'violations');
-        
+
         // Update company KPIs
         company.kpis = kpiResults;
-        
+
         // Recalculate overall index with NEW STRICT rules
         const overallIndex = calculateOverallIndex(kpiResults, company.profile);
         company.overallIndex = overallIndex;
         company.zone = getZone(overallIndex).name;
-        
+
         // Update Firebase if connected
         if (db && company.id) {
             db.collection("companies").doc(company.id).update({
@@ -1226,7 +1228,7 @@ function recomputeAllCompaniesScores() {
             }).catch(err => console.error("❌ Recompute update error:", err));
         }
     });
-    
+
     console.log("✅ Barcha korxonalar STRICT modelga qayta hisobland!");
 }
 
@@ -1287,7 +1289,7 @@ function renderStatistics(displayCompanies = companies) {
 
     // Calculate zones only from displayed companies with data
     const companiesWithData = displayCompanies.filter(c => c.overallIndex > 0);
-    
+
     const greenCount = companiesWithData.filter(c => getZone(c.overallIndex).name === 'green').length;
     const yellowCount = companiesWithData.filter(c => getZone(c.overallIndex).name === 'yellow').length;
     const redCount = companiesWithData.filter(c => getZone(c.overallIndex).name === 'red').length;
@@ -2013,6 +2015,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const formData = {
                 name: document.getElementById('company-name').value,
+                level: document.getElementById('company-level').value,
+                parent: document.getElementById('company-parent').value,
                 employees: employeesCount,
                 totalHours: employeesCount * 1820,
 
@@ -2197,12 +2201,12 @@ function getFilteredCompanies() {
         const structureSupervisors = structureData.filter(c =>
             c.level === 'supervisor' && c.supervisorId === 'aj_head'
         );
-        
+
         // Har bir supervisor uchun bolalarida ma'lumot bormi tekshiramiz
-        const supervisorsWithChildren = structureSupervisors.filter(sup => 
+        const supervisorsWithChildren = structureSupervisors.filter(sup =>
             hasDataOrChildren(sup.id)
         );
-        
+
         // Companies dan supervisorlar bilan birlashtirish (aggregate data uchun)
         const result = supervisorsWithChildren.map(structSup => {
             const liveSup = companies.find(c => c.id === structSup.id);
@@ -2217,7 +2221,7 @@ function getFilteredCompanies() {
             }
             return null;
         }).filter(Boolean);
-        
+
         console.log(`✅ Showing ${result.length} supervisors under AJ`);
         return result.sort((a, b) => (b.overallIndex || 0) - (a.overallIndex || 0));
     }
@@ -2232,14 +2236,14 @@ function getFilteredCompanies() {
             // Structure dan bu supervisorga tegishli bolalarni nomlarini olamiz
             const structChildren = structureData.filter(c => c.supervisorId === orgId);
             const structChildNames = structChildren.map(c => c.name.toLowerCase());
-            
+
             // Parent nomiga oid kalitlar
             const orgName = selectedOrg.name.toLowerCase();
             const keywords = orgName
                 .replace(/['"]/g, '')
                 .split(/\s+/)
                 .filter(w => w.length > 3 && !['mtu', 'aj', 'filial', 'the'].includes(w.toLowerCase()));
-            
+
             // Nom bo'yicha moslik qidirish
             childrenWithData = companiesWithData.filter(company => {
                 const companyName = company.name.toLowerCase();
@@ -2250,7 +2254,7 @@ function getFilteredCompanies() {
                 // Yoki parent kalit so'zlari bilan
                 return keywords.some(kw => companyName.includes(kw));
             });
-            
+
             if (childrenWithData.length > 0) {
                 console.log(`✅ Showing ${childrenWithData.length} name-matched subsidiaries under "${selectedOrg.name}"`);
             }
