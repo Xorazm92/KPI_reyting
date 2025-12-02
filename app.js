@@ -723,6 +723,12 @@ function addOrUpdateCompany(formData) {
         const wasEditing = !!currentEditId;
         currentEditId = null;
 
+        // FIREBASE QUOTA MUAMMOSI TUFAYLI O'CHIRILDI
+        // Faqat LocalStorage ishlatamiz
+        console.warn("⚠️ Firebase quota muammosi tufayli faqat LocalStorage ishlatilmoqda.");
+        saveLocal(companyData, wasEditing);
+
+        /* FIREBASE WRITE - VAQTINCHA O'CHIRILDI
         // 1. Try Firebase
         if (db) {
             console.log("🔥 Firebase ga yozilmoqda...");
@@ -764,6 +770,7 @@ function addOrUpdateCompany(formData) {
             console.warn("⚠️ Firebase mavjud emas. Lokalga saqlanmoqda...");
             saveLocal(companyData, wasEditing);
         }
+        */
     } catch (err) {
         console.error("❌ addOrUpdateCompany ichida xato:", err);
         alert("Dastur xatosi: " + err.message);
@@ -824,6 +831,15 @@ function finishSave(wasEditing = false) {
 
 function deleteCompany(id) {
     if (confirm('Bu korxonani o\'chirmoqchimisiz?')) {
+        // FIREBASE QUOTA MUAMMOSI TUFAYLI O'CHIRILDI
+        // Faqat LocalStorage ishlatamiz
+        companies = companies.filter(c => c.id !== id);
+        localStorage.setItem('mm_companies', JSON.stringify(companies));
+        calculateRankings();
+        renderDashboard();
+        if (typeof showNotification === 'function') showNotification('Korxona o\'chirildi 🗑️', 'warning');
+
+        /* FIREBASE DELETE - VAQTINCHA O'CHIRILDI
         if (db) {
             db.collection("companies").doc(id).delete().then(() => {
                 console.log("🗑️ Firebase: O'chirildi!");
@@ -839,6 +855,7 @@ function deleteCompany(id) {
             renderDashboard();
             if (typeof showNotification === 'function') showNotification('Korxona o\'chirildi (Lokal) 🗑️', 'warning');
         }
+        */
     }
 }
 
@@ -849,21 +866,28 @@ function deleteCompany(id) {
 function loadCompanies() {
     console.log("📡 loadCompanies chaqirildi. db:", db ? "Mavjud ✅" : "Yo'q ❌");
 
-    // 1. Try Firebase Real-time Listener
+    // FIREBASE QUOTA MUAMMOSI TUFAYLI VAQTINCHA O'CHIRILDI
+    // Real-time listener juda ko'p so'rov yuboradi va quota tugaydi
+    // Hozircha faqat LocalStorage ishlatamiz
+
+    console.warn("⚠️ Firebase quota muammosi tufayli LocalStorage ishlatilmoqda.");
+    loadLocal();
+
+    /* FIREBASE REAL-TIME LISTENER - VAQTINCHA O'CHIRILDI
     if (db) {
         console.log("🔥 Firebase real-time listener o'rnatilmoqda...");
-
+    
         db.collection("companies").onSnapshot((querySnapshot) => {
             console.log("📥 Firebase snapshot olindi. Hujjatlar soni:", querySnapshot.size);
-
+    
             companies = [];
             querySnapshot.forEach((doc) => {
                 const data = doc.data();
                 companies.push(data);
             });
-
+    
             console.log("✅ Firebase dan yangilandi:", companies.length, "ta korxona");
-
+    
             // Agar Firebase bo'sh bo'lsa, lokal/default ma'lumotlarni tekshiramiz
             if (companies.length === 0) {
                 console.warn("⚠️ Firebase'da ma'lumot yo'q. Default shablon yuklanmoqda...");
@@ -873,13 +897,13 @@ function loadCompanies() {
                 // Firebase da ma'lumot bor - faqat shuni ishlatamiz!
                 // Qo'shimcha merge QILMAYMIZ.
                 console.log("🔥 Faqat Firebase ma'lumotlari ishlatilmoqda.");
-
+    
                 // Backup uchun saqlab qo'yamiz
                 localStorage.setItem('mm_companies', JSON.stringify(companies));
             }
-
+    
             refreshUI();
-
+    
             if (companies.length > 0) {
                 console.log("Korxonalar:", companies.map(c => c.name).join(", "));
                 // Save to localStorage as backup
@@ -889,17 +913,17 @@ function loadCompanies() {
                 loadLocal();
                 return;
             }
-
+    
             refreshUI();
         }, (error) => {
             console.error("❌ Firebase yuklashda xato:", error);
             console.error("Xato kodi:", error.code);
             console.error("Xato xabari:", error.message);
-
+    
             // Show user-friendly error
             const errorMsg = `Firebase xatosi: ${error.message}\n\nLokal xotiradan yuklanadi.`;
             console.warn(errorMsg);
-
+    
             loadLocal();
         });
     } else {
@@ -907,6 +931,7 @@ function loadCompanies() {
         console.warn("⚠️ Firebase mavjud emas. LocalStorage ishlatiladi.");
         loadLocal();
     }
+    */
 }
 
 function loadLocal() {
@@ -1399,13 +1424,13 @@ function renderPodium(displayCompanies = companies) {
         const podiumPlace = document.createElement('div');
         podiumPlace.className = `podium-place ${places[i]}`;
         podiumPlace.innerHTML = `
-            <div class="podium-medal">${medals[i]}</div>
-            <div class="podium-company">${company.name}</div>
-            <div class="podium-index">${company.overallIndex.toFixed(1)}</div>
-            <div class="podium-base">
-                <div class="zone-badge ${zone.class}">${zone.label}</div>
-            </div>
-        `;
+        <div class="podium-medal">${medals[i]}</div>
+        <div class="podium-company">${company.name}</div>
+        <div class="podium-index">${company.overallIndex.toFixed(1)}</div>
+        <div class="podium-base">
+            <div class="zone-badge ${zone.class}">${zone.label}</div>
+        </div>
+    `;
 
         podiumSection.appendChild(podiumPlace);
     }
@@ -1453,24 +1478,24 @@ function viewCompanyDetails(companyId) {
         const scoreColor = score >= 80 ? '#2d9f5d' : score >= 50 ? '#ffb84d' : '#e74c3c';
 
         kpiHTML += `
-        <div class="kpi-card">
-            <div class="kpi-card-header">
-                <span class="kpi-icon">${config.icon}</span>
-                <span class="kpi-name">${config.name}</span>
-            </div>
-            <div class="kpi-score">
-                <span class="kpi-score-label">Ball:</span>
-                <span class="kpi-score-value">${Math.round(score)}</span>
-            </div>
-            <div class="kpi-progress-bar">
-                <div class="kpi-progress-fill" style="width: ${Math.min(100, score)}%; background: ${scoreColor};"></div>
-            </div>
-            <div class="kpi-weight">
-                <span>Vazn: ${percentage}%</span>
-                <span>Qiymat: ${displayValue}</span>
-            </div>
+    <div class="kpi-card">
+        <div class="kpi-card-header">
+            <span class="kpi-icon">${config.icon}</span>
+            <span class="kpi-name">${config.name}</span>
         </div>
-        `;
+        <div class="kpi-score">
+            <span class="kpi-score-label">Ball:</span>
+            <span class="kpi-score-value">${Math.round(score)}</span>
+        </div>
+        <div class="kpi-progress-bar">
+            <div class="kpi-progress-fill" style="width: ${Math.min(100, score)}%; background: ${scoreColor};"></div>
+        </div>
+        <div class="kpi-weight">
+            <span>Vazn: ${percentage}%</span>
+            <span>Qiymat: ${displayValue}</span>
+        </div>
+    </div>
+    `;
     }
 
     document.getElementById('detail-kpi-breakdown').innerHTML = kpiHTML;
@@ -1483,11 +1508,11 @@ function viewCompanyDetails(companyId) {
         violations.forEach(v => {
             const metricName = window.KPI_CONFIG[v.metric]?.name || v.metric;
             reqHTML += `
-            <div class="requirement-item violation">
-                <span class="requirement-icon">⚠️</span>
-                <span class="requirement-text"><strong>${metricName}:</strong> ${v.actual.toFixed(1)} < ${v.required} kerak (oyuti: -${v.penalty} ball)</span>
-            </div>
-            `;
+        <div class="requirement-item violation">
+            <span class="requirement-icon">⚠️</span>
+            <span class="requirement-text"><strong>${metricName}:</strong> ${v.actual.toFixed(1)} < ${v.required} kerak (oyuti: -${v.penalty} ball)</span>
+        </div>
+        `;
         });
     }
 
@@ -1518,11 +1543,11 @@ function updateComparisonSelection() {
     document.getElementById('compare-btn').disabled = false;
 
     container.innerHTML = companies.map(company => `
-        <label class="comparison-checkbox">
-            <input type="checkbox" value="${company.id}" class="compare-checkbox">
-            <span>${company.name}</span>
-        </label>
-    `).join('');
+    <label class="comparison-checkbox">
+        <input type="checkbox" value="${company.id}" class="compare-checkbox">
+        <span>${company.name}</span>
+    </label>
+`).join('');
 }
 
 function compareCompanies() {
@@ -2349,30 +2374,30 @@ function renderRankingTable(displayCompanies) {
     const tableHTML = sortedCompanies.map((company, index) => {
         const zone = getZone(company.overallIndex);
         return `
-        <tr>
-            <td>
-                <div class="rank-badge ${index < 3 ? 'top3' : ''}">${index + 1}</div>
-            </td>
-            <td>
-                <div class="company-info">
-                    <div class="company-name">${company.name}</div>
-                    <div class="company-meta">${company.profile || 'Korxona'}</div>
-                </div>
-            </td>
-            <td>${company.employees}</td>
-            <td>
-                <div class="index-display">${company.overallIndex.toFixed(1)}</div>
-            </td>
-            <td><span class="zone-badge ${zone.class}">${zone.label}</span></td>
-            <td>
-                <div class="action-btns">
-                    <button class="btn-icon" onclick="viewCompanyDetails('${company.id}')" title="Ko'rish">👁️</button>
-                    <button class="btn-icon" onclick="editCompany('${company.id}')" title="Tahrirlash">✏️</button>
-                    <button class="btn-icon" onclick="deleteCompany('${company.id}')" title="O'chirish">🗑️</button>
-                </div>
-            </td>
-        </tr>
-        `;
+    <tr>
+        <td>
+            <div class="rank-badge ${index < 3 ? 'top3' : ''}">${index + 1}</div>
+        </td>
+        <td>
+            <div class="company-info">
+                <div class="company-name">${company.name}</div>
+                <div class="company-meta">${company.profile || 'Korxona'}</div>
+            </div>
+        </td>
+        <td>${company.employees}</td>
+        <td>
+            <div class="index-display">${company.overallIndex.toFixed(1)}</div>
+        </td>
+        <td><span class="zone-badge ${zone.class}">${zone.label}</span></td>
+        <td>
+            <div class="action-btns">
+                <button class="btn-icon" onclick="viewCompanyDetails('${company.id}')" title="Ko'rish">👁️</button>
+                <button class="btn-icon" onclick="editCompany('${company.id}')" title="Tahrirlash">✏️</button>
+                <button class="btn-icon" onclick="deleteCompany('${company.id}')" title="O'chirish">🗑️</button>
+            </div>
+        </td>
+    </tr>
+    `;
     }).join('');
 
     // Inject HTML
@@ -2395,26 +2420,26 @@ function renderRiskAnalysis(displayCompanies = companies) {
     const greenCompanies = displayCompanies.filter(c => getZone(c.overallIndex).name === 'green');
 
     let html = `
-    <div class="risk-dashboard">
-        <div class="risk-column red-column">
-            <h3>🔴 Yuqori Xavf (${redCompanies.length})</h3>
-            <div class="risk-list">
-                ${redCompanies.length ? redCompanies.map(c => createRiskCard(c)).join('') : '<p class="empty-msg">Toza</p>'}
-            </div>
-        </div>
-        <div class="risk-column yellow-column">
-            <h3>🟡 O'rta Xavf (${yellowCompanies.length})</h3>
-            <div class="risk-list">
-                ${yellowCompanies.length ? yellowCompanies.map(c => createRiskCard(c)).join('') : '<p class="empty-msg">Toza</p>'}
-            </div>
-        </div>
-         <div class="risk-column green-column">
-            <h3>🟢 Past Xavf (${greenCompanies.length})</h3>
-            <div class="risk-list">
-                ${greenCompanies.length ? greenCompanies.map(c => createRiskCard(c)).join('') : '<p class="empty-msg">Toza</p>'}
-            </div>
+<div class="risk-dashboard">
+    <div class="risk-column red-column">
+        <h3>🔴 Yuqori Xavf (${redCompanies.length})</h3>
+        <div class="risk-list">
+            ${redCompanies.length ? redCompanies.map(c => createRiskCard(c)).join('') : '<p class="empty-msg">Toza</p>'}
         </div>
     </div>
+    <div class="risk-column yellow-column">
+        <h3>🟡 O'rta Xavf (${yellowCompanies.length})</h3>
+        <div class="risk-list">
+            ${yellowCompanies.length ? yellowCompanies.map(c => createRiskCard(c)).join('') : '<p class="empty-msg">Toza</p>'}
+        </div>
+    </div>
+     <div class="risk-column green-column">
+        <h3>🟢 Past Xavf (${greenCompanies.length})</h3>
+        <div class="risk-list">
+            ${greenCompanies.length ? greenCompanies.map(c => createRiskCard(c)).join('') : '<p class="empty-msg">Toza</p>'}
+        </div>
+    </div>
+</div>
 `;
 
     container.innerHTML = html;
@@ -2427,21 +2452,21 @@ function createRiskCard(company) {
         .slice(0, 3);
 
     return `
-    <div class="risk-card">
-        <div class="risk-header">
-            <strong>${company.name}</strong>
-            <span class="risk-score">${company.overallIndex.toFixed(1)}</span>
-        </div>
-        <div class="worst-kpis">
-            <small>Muammoli sohalar:</small>
-            <ul>
-                ${worstKPIs.map(([key, val]) => `
-                    <li>${KPI_CONFIG[key].name}: <strong>${val.score}</strong></li>
-                `).join('')}
-            </ul>
-        </div>
-        <button class="btn-sm btn-outline" onclick="viewCompanyDetails('${company.id}')">Tahlil</button>
+<div class="risk-card">
+    <div class="risk-header">
+        <strong>${company.name}</strong>
+        <span class="risk-score">${company.overallIndex.toFixed(1)}</span>
     </div>
+    <div class="worst-kpis">
+        <small>Muammoli sohalar:</small>
+        <ul>
+            ${worstKPIs.map(([key, val]) => `
+                <li>${KPI_CONFIG[key].name}: <strong>${val.score}</strong></li>
+            `).join('')}
+        </ul>
+    </div>
+    <button class="btn-sm btn-outline" onclick="viewCompanyDetails('${company.id}')">Tahlil</button>
+</div>
 `;
 }
 
@@ -2544,12 +2569,12 @@ function updateRankingContext() {
     } else {
         contextEl.classList.add('active');
         contextEl.innerHTML = `
-            <h3>
-                📊 ${context.title}
-                <span class="context-badge">${context.level === 'supervisor' ? 'Yuqori tashkilotlar' : 'Korxonalar'}</span>
-            </h3>
-            <p>${context.description}</p>
-        `;
+        <h3>
+            📊 ${context.title}
+            <span class="context-badge">${context.level === 'supervisor' ? 'Yuqori tashkilotlar' : 'Korxonalar'}</span>
+        </h3>
+        <p>${context.description}</p>
+    `;
     }
 }
 
