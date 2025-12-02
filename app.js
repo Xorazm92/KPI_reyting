@@ -1,25 +1,26 @@
 // ===================================
-// FIREBASE CONFIGURATION (NBT-KPI)
+// SUPABASE CONFIGURATION (NBT-KPI)
 // ===================================
-const firebaseConfig = {
-    apiKey: "AIzaSyCgDZtXjpmO3hN2e6lEZKLMVYe9ZKBDyO4",
-    authDomain: "nbt-kpi.firebaseapp.com",
-    projectId: "nbt-kpi",
-    storageBucket: "nbt-kpi.firebasestorage.app",
-    messagingSenderId: "859763032556",
-    appId: "1:859763032556:web:38ec98599f45376cf2c0c9",
-    measurementId: "G-G0158DFT8P"
-};
+const SUPABASE_URL = 'https://uqxtzlmdvmseirolfwgq.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVxeHR6bG1kdm1zZWlyb2xmd2dxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ0NzQ1ODUsImV4cCI6MjA4MDA1MDU4NX0.Hzol82Uz0gxOX1lsgFB-zLmt3uuoRB8Dsrkx6vE9C5k';
 
-// Initialize Firebase
+// Initialize Supabase
+let supabase;
 let db;
+
 try {
-    firebase.initializeApp(firebaseConfig);
-    db = firebase.firestore();
-    console.log("Firebase (NBT-KPI) muvaffaqiyatli ulandi! ✅");
+    if (typeof window.supabase !== 'undefined') {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        db = supabase; // For compatibility
+        console.log("✅ Supabase (NBT-KPI) muvaffaqiyatli ulandi!");
+    } else {
+        console.warn("⚠️ Supabase SDK yuklanmagan. LocalStorage ishlatiladi.");
+        db = null;
+    }
 } catch (error) {
-    console.error("Firebase ulanishda xatolik:", error);
-    alert("Firebase ulanmadi. Internetni tekshiring.");
+    console.error("❌ Supabase ulanishda xatolik:", error);
+    console.warn("⚠️ LocalStorage ishlatiladi.");
+    db = null;
 }
 
 // ===================================
@@ -687,7 +688,7 @@ function calculateCompanyKPIs(formData) {
 // Company Management (Hybrid: Firebase + LocalStorage)
 // ===================================
 
-function addOrUpdateCompany(formData) {
+async function addOrUpdateCompany(formData) {
     console.log("🚀 addOrUpdateCompany ishga tushdi", formData);
 
     try {
@@ -696,10 +697,10 @@ function addOrUpdateCompany(formData) {
         const overallIndex = calculateOverallIndex(kpis, profileId);
         const zone = getZone(overallIndex);
 
-        // Generate or use existing ID
         const id = currentEditId || generateId();
-        console.log("📌 ID:", id, "| Edit mode:", currentEditId ? "Ha" : "Yo'q");
+        console.log(`📌 ID: ${id} | Edit mode: ${currentEditId ? 'Ha' : "Yo'q"}`);
 
+        // Prepare data for Supabase (snake_case)
         const companyData = {
             id: id,
             name: formData.name,
@@ -707,70 +708,46 @@ function addOrUpdateCompany(formData) {
             parent: formData.parent,
             profile: profileId,
             employees: parseFloat(formData.employees) || 0,
-            totalHours: parseFloat(formData.totalHours) || 0,
+            total_hours: parseFloat(formData.totalHours) || 0,
             kpis: kpis,
-            overallIndex: overallIndex,
+            overall_index: overallIndex,
             zone: zone.name,
-            dateAdded: currentEditId
+            date_added: currentEditId
                 ? (companies.find(c => c.id === currentEditId)?.dateAdded || new Date().toISOString())
                 : new Date().toISOString(),
-            rawData: formData
+            raw_data: formData,
+            updated_at: new Date().toISOString()
         };
-
-        console.log("📝 Tayyorlangan ma'lumot:", companyData);
 
         // Clear edit mode immediately
         const wasEditing = !!currentEditId;
         currentEditId = null;
 
-        // FIREBASE QUOTA MUAMMOSI TUFAYLI O'CHIRILDI
-        // Faqat LocalStorage ishlatamiz
-        console.warn("⚠️ Firebase quota muammosi tufayli faqat LocalStorage ishlatilmoqda.");
-        saveLocal(companyData, wasEditing);
-
-        /* FIREBASE WRITE - VAQTINCHA O'CHIRILDI
-        // 1. Try Firebase
         if (db) {
-            console.log("🔥 Firebase ga yozilmoqda...");
-            console.log("📄 Saqlash uchun ma'lumot:", {
-                id: id,
-                name: companyData.name,
-                employees: companyData.employees,
-                overallIndex: companyData.overallIndex
-            });
+            console.log("🔥 Supabase'ga saqlanmoqda...");
 
-            db.collection("companies").doc(id).set(companyData, { merge: true })
-                .then(() => {
-                    console.log("✅ Firebase: Muvaffaqiyatli saqlandi!");
-                    console.log("📊 Saqlangan ID:", id);
-                    finishSave(wasEditing);
-                })
-                .catch((error) => {
-                    console.error("❌ Firebase Xatosi:", error);
-                    console.error("Xato kodi:", error.code);
-                    console.error("Xato xabari:", error.message);
+            const { data, error } = await supabase
+                .from('companies')
+                .upsert(companyData, { onConflict: 'id' })
+                .select();
 
-                    let errorMsg = "Firebase xatosi: ";
-                    if (error.code === 'permission-denied') {
-                        errorMsg += "Ruxsat berilmagan!\n\n";
-                        errorMsg += "Firebase Console'da Firestore Security Rules'ni tekshiring.\n";
-                        errorMsg += "Development uchun: allow read, write: if true;\n\n";
-                    } else if (error.code === 'unavailable') {
-                        errorMsg += "Internet ulanishi yo'q!\n\n";
-                    } else {
-                        errorMsg += error.message + "\n\n";
-                    }
-                    errorMsg += "Lokal xotiraga saqlashga urinib ko'ramiz.";
+            if (error) throw error;
 
-                    alert(errorMsg);
-                    saveLocal(companyData, wasEditing);
-                });
+            console.log("✅ Supabase: Muvaffaqiyatli saqlandi!");
+            finishSave(wasEditing);
         } else {
-            // 2. Fallback to LocalStorage
-            console.warn("⚠️ Firebase mavjud emas. Lokalga saqlanmoqda...");
-            saveLocal(companyData, wasEditing);
+            console.warn("⚠️ Supabase ulanmagan. LocalStorage ishlatiladi.");
+            // LocalStorage fallback (need to map back to camelCase for local usage)
+            const localData = {
+                ...companyData,
+                totalHours: companyData.total_hours,
+                overallIndex: companyData.overall_index,
+                dateAdded: companyData.date_added,
+                rawData: companyData.raw_data
+            };
+            saveLocal(localData, wasEditing);
         }
-        */
+
     } catch (err) {
         console.error("❌ addOrUpdateCompany ichida xato:", err);
         alert("Dastur xatosi: " + err.message);
@@ -829,25 +806,30 @@ function finishSave(wasEditing = false) {
     }
 }
 
-function deleteCompany(id) {
+async function deleteCompany(id) {
     if (confirm('Bu korxonani o\'chirmoqchimisiz?')) {
-        // FIREBASE QUOTA MUAMMOSI TUFAYLI O'CHIRILDI
-        // Faqat LocalStorage ishlatamiz
-        companies = companies.filter(c => c.id !== id);
-        localStorage.setItem('mm_companies', JSON.stringify(companies));
-        calculateRankings();
-        renderDashboard();
-        if (typeof showNotification === 'function') showNotification('Korxona o\'chirildi 🗑️', 'warning');
-
-        /* FIREBASE DELETE - VAQTINCHA O'CHIRILDI
         if (db) {
-            db.collection("companies").doc(id).delete().then(() => {
-                console.log("🗑️ Firebase: O'chirildi!");
+            try {
+                const { error } = await supabase
+                    .from('companies')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) throw error;
+
+                console.log("🗑️ Supabase: O'chirildi!");
                 if (typeof showNotification === 'function') showNotification('Korxona o\'chirildi 🗑️', 'warning');
-            }).catch(err => {
+
+                // Real-time listener will handle UI update, but we can force it locally too
+                companies = companies.filter(c => c.id !== id);
+                localStorage.setItem('mm_companies', JSON.stringify(companies));
+                calculateRankings();
+                renderDashboard();
+
+            } catch (err) {
                 console.error("❌ O'chirishda xato:", err);
                 alert("O'chirishda xatolik: " + err.message);
-            });
+            }
         } else {
             companies = companies.filter(c => c.id !== id);
             localStorage.setItem('mm_companies', JSON.stringify(companies));
@@ -855,7 +837,6 @@ function deleteCompany(id) {
             renderDashboard();
             if (typeof showNotification === 'function') showNotification('Korxona o\'chirildi (Lokal) 🗑️', 'warning');
         }
-        */
     }
 }
 
@@ -863,75 +844,90 @@ function deleteCompany(id) {
 // Data Loading (Hybrid)
 // ===================================
 
-function loadCompanies() {
+async function loadCompanies() {
     console.log("📡 loadCompanies chaqirildi. db:", db ? "Mavjud ✅" : "Yo'q ❌");
 
-    // FIREBASE QUOTA MUAMMOSI TUFAYLI VAQTINCHA O'CHIRILDI
-    // Real-time listener juda ko'p so'rov yuboradi va quota tugaydi
-    // Hozircha faqat LocalStorage ishlatamiz
-
-    console.warn("⚠️ Firebase quota muammosi tufayli LocalStorage ishlatilmoqda.");
-    loadLocal();
-
-    /* FIREBASE REAL-TIME LISTENER - VAQTINCHA O'CHIRILDI
     if (db) {
-        console.log("🔥 Firebase real-time listener o'rnatilmoqda...");
-    
-        db.collection("companies").onSnapshot((querySnapshot) => {
-            console.log("📥 Firebase snapshot olindi. Hujjatlar soni:", querySnapshot.size);
-    
-            companies = [];
-            querySnapshot.forEach((doc) => {
-                const data = doc.data();
-                companies.push(data);
-            });
-    
-            console.log("✅ Firebase dan yangilandi:", companies.length, "ta korxona");
-    
-            // Agar Firebase bo'sh bo'lsa, lokal/default ma'lumotlarni tekshiramiz
-            if (companies.length === 0) {
-                console.warn("⚠️ Firebase'da ma'lumot yo'q. Default shablon yuklanmoqda...");
-                // Faqat boshlash uchun shablon yuklaymiz (0 ball bilan)
-                companies = window.UZ_RAILWAY_DATA || [];
-            } else {
-                // Firebase da ma'lumot bor - faqat shuni ishlatamiz!
-                // Qo'shimcha merge QILMAYMIZ.
-                console.log("🔥 Faqat Firebase ma'lumotlari ishlatilmoqda.");
-    
-                // Backup uchun saqlab qo'yamiz
+        console.log("🔥 Supabase'dan yuklanmoqda...");
+
+        try {
+            // 1. Initial fetch
+            const { data, error } = await supabase
+                .from('companies')
+                .select('*')
+                .order('overall_index', { ascending: false });
+
+            if (error) throw error;
+
+            if (data && data.length > 0) {
+                // Map Supabase data format to app format if needed
+                companies = data.map(c => ({
+                    ...c,
+                    // Ensure camelCase for app compatibility if DB uses snake_case
+                    totalHours: c.total_hours,
+                    overallIndex: c.overall_index,
+                    dateAdded: c.date_added,
+                    rawData: c.raw_data
+                }));
+
+                console.log(`✅ Supabase: ${companies.length} ta korxona yuklandi`);
                 localStorage.setItem('mm_companies', JSON.stringify(companies));
-            }
-    
-            refreshUI();
-    
-            if (companies.length > 0) {
-                console.log("Korxonalar:", companies.map(c => c.name).join(", "));
-                // Save to localStorage as backup
-                localStorage.setItem('mm_companies', JSON.stringify(companies));
+                refreshUI();
             } else {
-                console.warn("⚠️ Firebase'da ma'lumot yo'q. LocalStorage'dan yuklanmoqda...");
+                console.warn("⚠️ Supabase bo'sh. LocalStorage tekshirilmoqda...");
                 loadLocal();
-                return;
             }
-    
-            refreshUI();
-        }, (error) => {
-            console.error("❌ Firebase yuklashda xato:", error);
-            console.error("Xato kodi:", error.code);
-            console.error("Xato xabari:", error.message);
-    
-            // Show user-friendly error
-            const errorMsg = `Firebase xatosi: ${error.message}\n\nLokal xotiradan yuklanadi.`;
-            console.warn(errorMsg);
-    
+
+            // 2. Real-time Subscription
+            const channel = supabase
+                .channel('companies_realtime')
+                .on('postgres_changes',
+                    { event: '*', schema: 'public', table: 'companies' },
+                    (payload) => {
+                        console.log('🔄 Real-time o\'zgarish:', payload);
+                        // Oddiy yechim: o'zgarish bo'lsa qayta yuklash
+                        // Optimizatsiya uchun faqat o'zgargan qatorni yangilash mumkin
+                        loadCompaniesFetchOnly();
+                    }
+                )
+                .subscribe();
+
+            console.log("✅ Real-time kuzatuv yoqildi");
+
+        } catch (error) {
+            console.error("❌ Supabase yuklash xatosi:", error);
+            console.warn("⚠️ LocalStorage'dan yuklanmoqda...");
             loadLocal();
-        });
+        }
     } else {
-        // 2. Fallback to LocalStorage
-        console.warn("⚠️ Firebase mavjud emas. LocalStorage ishlatiladi.");
+        console.warn("⚠️ Supabase ulanmagan. LocalStorage ishlatiladi.");
         loadLocal();
     }
-    */
+}
+
+// Helper for real-time updates to avoid re-subscribing
+async function loadCompaniesFetchOnly() {
+    try {
+        const { data, error } = await supabase
+            .from('companies')
+            .select('*')
+            .order('overall_index', { ascending: false });
+
+        if (!error && data) {
+            companies = data.map(c => ({
+                ...c,
+                totalHours: c.total_hours,
+                overallIndex: c.overall_index,
+                dateAdded: c.date_added,
+                rawData: c.raw_data
+            }));
+            localStorage.setItem('mm_companies', JSON.stringify(companies));
+            refreshUI();
+            console.log("🔄 Ro'yxat yangilandi");
+        }
+    } catch (e) {
+        console.error("Real-time update error:", e);
+    }
 }
 
 function loadLocal() {
@@ -1245,12 +1241,18 @@ function recomputeAllCompaniesScores() {
         company.zone = getZone(overallIndex).name;
 
         // Update Firebase if connected
+        // Update Supabase if connected
         if (db && company.id) {
-            db.collection("companies").doc(company.id).update({
+            supabase.from('companies').update({
                 kpis: kpiResults,
-                overallIndex: overallIndex,
-                zone: company.zone
-            }).catch(err => console.error("❌ Recompute update error:", err));
+                overall_index: overallIndex,
+                zone: company.zone,
+                updated_at: new Date().toISOString()
+            })
+                .eq('id', company.id)
+                .then(({ error }) => {
+                    if (error) console.error("❌ Recompute update error:", error);
+                });
         }
     });
 
