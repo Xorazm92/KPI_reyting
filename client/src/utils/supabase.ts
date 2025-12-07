@@ -1,9 +1,14 @@
 import { createClient } from '@supabase/supabase-js';
 
-const SUPABASE_URL = 'https://uqxtzlmdvmseirolfwgq.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVxeHR6bG1kdm1zZWlyb2xmd2dxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ0NzQ1ODUsImV4cCI6MjA4MDA1MDU4NX0.Hzol82Uz0gxOX1lsgFB-zLmt3uuoRB8Dsrkx6vE9C5k';
+const supabaseUrl = 'https://uqxtzlmdvmseirolfwgq.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVxeHR6bG1kdm1zZWlyb2xmd2dxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzM0OTgzNjgsImV4cCI6MjA0OTA3NDM2OH0.hIHxKbQfX0vZYOgXW3f2n9Pj9Qv3KUOHSBPiV9CKqpI';
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+// API endpoint (for testing/backup)
+export const API_BASE_URL = import.meta.env.DEV
+  ? 'http://localhost:3001/api'
+  : '/api';
 
 // Test API connection
 export async function testSupabaseConnection() {
