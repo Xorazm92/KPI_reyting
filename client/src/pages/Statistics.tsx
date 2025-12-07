@@ -1,8 +1,34 @@
+
 import React, { useMemo, useState } from 'react';
 import { useCompanies } from '../contexts/CompanyContext';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, LineElement, PointElement, ArcElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar, Line, Doughnut } from 'react-chartjs-2';
 import { KPI_CONFIG } from '../utils/kpiConfig';
+import { 
+  Box, 
+  Card, 
+  CardContent, 
+  Typography, 
+  ToggleButton, 
+  ToggleButtonGroup,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Paper,
+  Grid,
+  Chip,
+  Stack
+} from '@mui/material';
+import { 
+  CalendarMonth, 
+  DateRange, 
+  TrendingUp,
+  Assessment,
+  DonutLarge,
+  BarChart,
+  EmojiEvents
+} from '@mui/icons-material';
 import './Statistics.css';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, ArcElement, Title, Tooltip, Legend);
@@ -21,9 +47,13 @@ export function Statistics() {
       labels: ['🟢 Yashil Zona', '🟡 Sariq Zona', '🔴 Qizil Zona'],
       datasets: [{
         data: [green, yellow, red],
-        backgroundColor: ['#27ae60', '#f39c12', '#e74c3c'],
-        borderWidth: 2,
-        borderColor: '#fff'
+        backgroundColor: [
+          'rgba(46, 204, 113, 0.8)',
+          'rgba(241, 196, 15, 0.8)',
+          'rgba(231, 76, 60, 0.8)'
+        ],
+        borderWidth: 0,
+        hoverOffset: 10
       }]
     };
   }, [companies]);
@@ -40,9 +70,11 @@ export function Statistics() {
       datasets: [{
         label: "O'rtacha Ball",
         data: averages,
-        backgroundColor: '#F56400',
-        borderColor: '#d55700',
-        borderWidth: 2
+        backgroundColor: 'rgba(245, 100, 0, 0.7)',
+        borderColor: '#F56400',
+        borderWidth: 2,
+        borderRadius: 8,
+        hoverBackgroundColor: 'rgba(245, 100, 0, 0.9)'
       }]
     };
   }, [companies]);
@@ -54,9 +86,14 @@ export function Statistics() {
       datasets: [{
         label: 'MM Indeksi',
         data: sorted.map(c => c.overallIndex),
-        backgroundColor: sorted.map(c => c.overallIndex >= 80 ? '#27ae60' : c.overallIndex >= 50 ? '#f39c12' : '#e74c3c'),
+        backgroundColor: sorted.map(c => 
+          c.overallIndex >= 80 ? 'rgba(46, 204, 113, 0.7)' : 
+          c.overallIndex >= 50 ? 'rgba(241, 196, 15, 0.7)' : 
+          'rgba(231, 76, 60, 0.7)'
+        ),
         borderWidth: 2,
-        borderColor: '#fff'
+        borderColor: '#fff',
+        borderRadius: 6
       }]
     };
   }, [companies]);
@@ -73,86 +110,177 @@ export function Statistics() {
         borderColor: '#F56400',
         backgroundColor: 'rgba(245, 100, 0, 0.1)',
         tension: 0.4,
-        fill: true
+        fill: true,
+        pointRadius: 6,
+        pointHoverRadius: 8,
+        pointBackgroundColor: '#F56400',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2
       }]
     };
   }, [selectedKPI]);
 
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: true,
+        position: 'bottom' as const,
+        labels: {
+          padding: 15,
+          font: { size: 12, weight: '600' }
+        }
+      }
+    }
+  };
+
   return (
-    <div className="statistics">
-      <div className="section-header">
-        <h2>📊 Statistik Tahlil</h2>
-        <div className="period-selector">
-          {(['monthly', 'quarterly', 'yearly'] as const).map(p => (
-            <button
-              key={p}
-              className={`period-btn ${period === p ? 'active' : ''}`}
-              onClick={() => setPeriod(p)}
-            >
-              {p === 'monthly' ? '📅 Oylik' : p === 'quarterly' ? '📆 Choraklik' : '📈 Yillik'}
-            </button>
-          ))}
-        </div>
-      </div>
+    <Box sx={{ p: 3, bgcolor: '#f5f7fa', minHeight: '100vh' }}>
+      <Paper elevation={0} sx={{ p: 3, mb: 3, borderRadius: 3, background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+        <Stack direction="row" justifyContent="space-between" alignItems="center">
+          <Box>
+            <Typography variant="h4" sx={{ color: '#fff', fontWeight: 700, mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Assessment sx={{ fontSize: 40 }} />
+              Statistik Tahlil
+            </Typography>
+            <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.9)' }}>
+              {companies.length} ta korxona ma'lumotlari
+            </Typography>
+          </Box>
+          <ToggleButtonGroup
+            value={period}
+            exclusive
+            onChange={(e, val) => val && setPeriod(val)}
+            sx={{ bgcolor: 'rgba(255,255,255,0.2)', borderRadius: 2 }}
+          >
+            <ToggleButton value="monthly" sx={{ color: '#fff', '&.Mui-selected': { bgcolor: 'rgba(255,255,255,0.3)' } }}>
+              <CalendarMonth sx={{ mr: 1 }} /> Oylik
+            </ToggleButton>
+            <ToggleButton value="quarterly" sx={{ color: '#fff', '&.Mui-selected': { bgcolor: 'rgba(255,255,255,0.3)' } }}>
+              <DateRange sx={{ mr: 1 }} /> Choraklik
+            </ToggleButton>
+            <ToggleButton value="yearly" sx={{ color: '#fff', '&.Mui-selected': { bgcolor: 'rgba(255,255,255,0.3)' } }}>
+              <TrendingUp sx={{ mr: 1 }} /> Yillik
+            </ToggleButton>
+          </ToggleButtonGroup>
+        </Stack>
+      </Paper>
 
-      <div className="stats-grid">
-        <div className="chart-card">
-          <h3>🎯 Zona Taqsimoti</h3>
-          <div className="chart-wrapper">
-            <Doughnut data={zoneDistribution} options={{ responsive: true, maintainAspectRatio: false }} />
-          </div>
-        </div>
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={6}>
+          <Card elevation={3} sx={{ borderRadius: 3, height: '100%' }}>
+            <CardContent sx={{ p: 3 }}>
+              <Stack direction="row" alignItems="center" spacing={1} mb={2}>
+                <DonutLarge sx={{ color: '#F56400', fontSize: 28 }} />
+                <Typography variant="h6" fontWeight={700}>
+                  Zona Taqsimoti
+                </Typography>
+              </Stack>
+              <Box sx={{ height: 320, position: 'relative' }}>
+                <Doughnut data={zoneDistribution} options={chartOptions} />
+              </Box>
+              <Stack direction="row" spacing={1} justifyContent="center" mt={2}>
+                <Chip label={`🟢 ${zoneDistribution.datasets[0].data[0]} ta`} color="success" />
+                <Chip label={`🟡 ${zoneDistribution.datasets[0].data[1]} ta`} sx={{ bgcolor: '#f39c12', color: '#fff' }} />
+                <Chip label={`🔴 ${zoneDistribution.datasets[0].data[2]} ta`} color="error" />
+              </Stack>
+            </CardContent>
+          </Card>
+        </Grid>
 
-        <div className="chart-card">
-          <h3>📊 O'rtacha KPI Ballari</h3>
-          <div className="chart-wrapper">
-            <Bar 
-              data={avgKPIScores} 
-              options={{
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: { y: { beginAtZero: true, max: 100 } }
-              }} 
-            />
-          </div>
-        </div>
+        <Grid item xs={12} md={6}>
+          <Card elevation={3} sx={{ borderRadius: 3, height: '100%' }}>
+            <CardContent sx={{ p: 3 }}>
+              <Stack direction="row" alignItems="center" spacing={1} mb={2}>
+                <BarChart sx={{ color: '#F56400', fontSize: 28 }} />
+                <Typography variant="h6" fontWeight={700}>
+                  O'rtacha KPI Ballari
+                </Typography>
+              </Stack>
+              <Box sx={{ height: 320 }}>
+                <Bar 
+                  data={avgKPIScores} 
+                  options={{
+                    ...chartOptions,
+                    scales: { 
+                      y: { beginAtZero: true, max: 100, grid: { color: 'rgba(0,0,0,0.05)' } },
+                      x: { grid: { display: false } }
+                    }
+                  }} 
+                />
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
 
-        <div className="chart-card full-width">
-          <h3>🏆 Top 10 Korxonalar</h3>
-          <div className="chart-wrapper">
-            <Bar 
-              data={topCompanies} 
-              options={{
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: { x: { beginAtZero: true, max: 100 } }
-              }} 
-            />
-          </div>
-        </div>
+        <Grid item xs={12}>
+          <Card elevation={3} sx={{ borderRadius: 3 }}>
+            <CardContent sx={{ p: 3 }}>
+              <Stack direction="row" alignItems="center" spacing={1} mb={2}>
+                <EmojiEvents sx={{ color: '#F56400', fontSize: 28 }} />
+                <Typography variant="h6" fontWeight={700}>
+                  Top 10 Korxonalar
+                </Typography>
+              </Stack>
+              <Box sx={{ height: 400 }}>
+                <Bar 
+                  data={topCompanies} 
+                  options={{
+                    indexAxis: 'y',
+                    ...chartOptions,
+                    scales: { 
+                      x: { beginAtZero: true, max: 100, grid: { color: 'rgba(0,0,0,0.05)' } },
+                      y: { grid: { display: false } }
+                    }
+                  }} 
+                />
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
 
-        <div className="chart-card full-width">
-          <div className="chart-header">
-            <h3>📈 KPI Tendensiyasi</h3>
-            <select value={selectedKPI} onChange={(e) => setSelectedKPI(e.target.value)} className="kpi-select">
-              {Object.entries(KPI_CONFIG).slice(0, 8).map(([key, config]) => (
-                <option key={key} value={key}>{config.name}</option>
-              ))}
-            </select>
-          </div>
-          <div className="chart-wrapper">
-            <Line 
-              data={kpiTrend} 
-              options={{
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: { y: { beginAtZero: true, max: 100 } }
-              }} 
-            />
-          </div>
-        </div>
-      </div>
-    </div>
+        <Grid item xs={12}>
+          <Card elevation={3} sx={{ borderRadius: 3 }}>
+            <CardContent sx={{ p: 3 }}>
+              <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2}>
+                <Stack direction="row" alignItems="center" spacing={1}>
+                  <TrendingUp sx={{ color: '#F56400', fontSize: 28 }} />
+                  <Typography variant="h6" fontWeight={700}>
+                    KPI Tendensiyasi
+                  </Typography>
+                </Stack>
+                <FormControl sx={{ minWidth: 200 }}>
+                  <InputLabel>KPI tanlash</InputLabel>
+                  <Select 
+                    value={selectedKPI} 
+                    onChange={(e) => setSelectedKPI(e.target.value)}
+                    label="KPI tanlash"
+                  >
+                    {Object.entries(KPI_CONFIG).slice(0, 8).map(([key, config]) => (
+                      <MenuItem key={key} value={key}>
+                        {config.icon} {config.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Stack>
+              <Box sx={{ height: 350 }}>
+                <Line 
+                  data={kpiTrend} 
+                  options={{
+                    ...chartOptions,
+                    scales: { 
+                      y: { beginAtZero: true, max: 100, grid: { color: 'rgba(0,0,0,0.05)' } },
+                      x: { grid: { display: false } }
+                    }
+                  }} 
+                />
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+    </Box>
   );
 }
