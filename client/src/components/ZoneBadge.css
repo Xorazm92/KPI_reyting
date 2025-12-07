@@ -1,0 +1,25 @@
+.zone-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.zone-green {
+  background: rgba(39, 174, 96, 0.15);
+  color: #1e8449;
+}
+
+.zone-yellow {
+  background: rgba(243, 156, 18, 0.15);
+  color: #b7950b;
+}
+
+.zone-red {
+  background: rgba(231, 76, 60, 0.15);
+  color: #c0392b;
+}

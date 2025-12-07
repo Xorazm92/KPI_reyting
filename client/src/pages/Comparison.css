@@ -1,0 +1,183 @@
+.comparison-page {
+  padding: 20px 0;
+}
+
+.helper-text {
+  color: #666;
+  margin-top: 4px;
+}
+
+.comparison-layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 24px;
+  margin-top: 24px;
+}
+
+@media (max-width: 992px) {
+  .comparison-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.company-selector {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  height: fit-content;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.company-selector h3 {
+  margin: 0 0 16px 0;
+  color: #1a1a2e;
+}
+
+.company-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.company-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.company-item:hover {
+  border-color: #e67e22;
+}
+
+.company-item.selected {
+  border-color: #e67e22;
+  background: rgba(230, 126, 34, 0.1);
+}
+
+.company-checkbox {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #e0e0e0;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: white;
+  background: white;
+}
+
+.company-item.selected .company-checkbox {
+  background: #e67e22;
+  border-color: #e67e22;
+}
+
+.company-info {
+  flex: 1;
+}
+
+.company-info .company-name {
+  font-weight: 600;
+  color: #1a1a2e;
+  font-size: 0.9rem;
+}
+
+.company-info .company-score {
+  color: #e67e22;
+  font-size: 0.85rem;
+}
+
+.comparison-charts {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.chart-container {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.chart-container h3 {
+  margin: 0 0 20px 0;
+  color: #1a1a2e;
+}
+
+.comparison-table {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  overflow-x: auto;
+}
+
+.comparison-table h3 {
+  margin: 0 0 20px 0;
+  color: #1a1a2e;
+}
+
+.comparison-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.comparison-table th,
+.comparison-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.comparison-table th {
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.score-cell {
+  font-weight: 700;
+  color: #e67e22;
+}
+
+.score-green {
+  color: #27ae60;
+  font-weight: 600;
+}
+
+.score-yellow {
+  color: #f39c12;
+  font-weight: 600;
+}
+
+.score-red {
+  color: #e74c3c;
+  font-weight: 600;
+}
+
+.empty-comparison {
+  background: white;
+  border-radius: 16px;
+  padding: 60px;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 16px;
+}
+
+.empty-comparison h3 {
+  color: #1a1a2e;
+  margin-bottom: 8px;
+}
+
+.empty-comparison p {
+  color: #666;
+}
