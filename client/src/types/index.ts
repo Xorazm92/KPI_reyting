@@ -24,9 +24,9 @@ export interface CompanyKPIs {
   compliance: KPIResult;
   emergency: KPIResult;
   violations: KPIResult;
-  workStopInternal?: KPIResult;
-  workStopExternal?: KPIResult;
-  insurancePayments?: KPIResult;
+  workStopInternal: KPIResult;
+  workStopExternal: KPIResult;
+  insurancePayments: KPIResult;
 }
 
 export interface Company {
