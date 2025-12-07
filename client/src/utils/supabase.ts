@@ -5,18 +5,38 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// Test API connection
+export async function testSupabaseConnection() {
+  try {
+    const { data, error } = await supabase
+      .from('companies')
+      .select('count');
+
+    if (error) {
+      console.error('❌ Supabase connection failed:', error);
+      return false;
+    }
+
+    console.log('✅ Supabase connection successful');
+    return true;
+  } catch (err) {
+    console.error('❌ Supabase connection error:', err);
+    return false;
+  }
+}
+
 export const loadCompaniesFromSupabase = async () => {
   try {
     const { data, error } = await supabase
       .from('companies')
       .select('*')
       .order('overallIndex', { ascending: false });
-    
+
     if (error) {
       console.error('Supabase error:', error);
       return null;
     }
-    
+
     console.log(`✅ Supabase: ${data?.length || 0} ta korxona yuklandi`);
     return data;
   } catch (err) {
@@ -32,12 +52,12 @@ export const saveCompanyToSupabase = async (company: any) => {
       .upsert(company, { onConflict: 'id' })
       .select()
       .single();
-    
+
     if (error) {
       console.error('Save error:', error);
       return null;
     }
-    
+
     return data;
   } catch (err) {
     console.error('Failed to save company:', err);
@@ -51,12 +71,12 @@ export const deleteCompanyFromSupabase = async (id: string) => {
       .from('companies')
       .delete()
       .eq('id', id);
-    
+
     if (error) {
       console.error('Delete error:', error);
       return false;
     }
-    
+
     return true;
   } catch (err) {
     console.error('Failed to delete company:', err);
@@ -76,7 +96,7 @@ export const subscribeToCompanies = (callback: (companies: any[]) => void) => {
       }
     )
     .subscribe();
-  
+
   return () => {
     supabase.removeChannel(channel);
   };
