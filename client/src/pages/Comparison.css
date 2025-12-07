@@ -1,125 +1,139 @@
-.comparison-page {
+
+.comparison {
   padding: 20px 0;
 }
 
-.helper-text {
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.section-header h2 {
+  font-size: 1.5rem;
+  color: #1a1a2e;
+  margin: 0;
+}
+
+.selection-info {
+  padding: 10px 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  font-weight: 600;
   color: #666;
-  margin-top: 4px;
-}
-
-.comparison-layout {
-  display: grid;
-  grid-template-columns: 300px 1fr;
-  gap: 24px;
-  margin-top: 24px;
-}
-
-@media (max-width: 992px) {
-  .comparison-layout {
-    grid-template-columns: 1fr;
-  }
 }
 
 .company-selector {
   background: white;
+  padding: 24px;
   border-radius: 16px;
-  padding: 20px;
-  height: fit-content;
-  max-height: 600px;
-  overflow-y: auto;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
 .company-selector h3 {
-  margin: 0 0 16px 0;
-  color: #1a1a2e;
+  margin: 0 0 20px 0;
+  font-size: 1.1rem;
+  color: #222;
 }
 
-.company-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.company-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 16px;
 }
 
-.company-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px;
+.company-card {
+  padding: 16px;
   border: 2px solid #e0e0e0;
-  border-radius: 8px;
+  border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
+  background: white;
 }
 
-.company-item:hover {
-  border-color: #e67e22;
+.company-card:hover {
+  border-color: #F56400;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.company-item.selected {
-  border-color: #e67e22;
-  background: rgba(230, 126, 34, 0.1);
+.company-card.selected {
+  border-color: #F56400;
+  background: #fff5f0;
 }
 
-.company-checkbox {
+.company-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.company-card-header h4 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #222;
+}
+
+.check-mark {
   width: 24px;
   height: 24px;
-  border: 2px solid #e0e0e0;
-  border-radius: 4px;
+  background: #27ae60;
+  color: white;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
-  color: white;
-  background: white;
-}
-
-.company-item.selected .company-checkbox {
-  background: #e67e22;
-  border-color: #e67e22;
-}
-
-.company-info {
-  flex: 1;
-}
-
-.company-info .company-name {
-  font-weight: 600;
-  color: #1a1a2e;
   font-size: 0.9rem;
 }
 
-.company-info .company-score {
-  color: #e67e22;
-  font-size: 0.85rem;
+.company-card-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.comparison-charts {
+.score-display {
   display: flex;
   flex-direction: column;
-  gap: 24px;
 }
 
-.chart-container {
-  background: white;
-  border-radius: 16px;
-  padding: 24px;
+.score-label {
+  font-size: 0.75rem;
+  color: #999;
+  margin-bottom: 4px;
 }
 
-.chart-container h3 {
-  margin: 0 0 20px 0;
-  color: #1a1a2e;
+.score-value {
+  font-size: 1.5rem;
+  font-weight: 700;
 }
 
+.score-value.score-green { color: #27ae60; }
+.score-value.score-yellow { color: #f39c12; }
+.score-value.score-red { color: #e74c3c; }
+
+.comparison-radar,
 .comparison-table {
   background: white;
-  border-radius: 16px;
   padding: 24px;
-  overflow-x: auto;
+  border-radius: 16px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
+.comparison-radar h3,
 .comparison-table h3 {
   margin: 0 0 20px 0;
-  color: #1a1a2e;
+  font-size: 1.1rem;
+  color: #222;
+}
+
+.radar-wrapper {
+  height: 400px;
+  position: relative;
 }
 
 .comparison-table table {
@@ -141,31 +155,44 @@
   font-size: 0.85rem;
 }
 
-.score-cell {
+.comparison-table tr:hover {
+  background: #fafafa;
+}
+
+.overall-row {
+  background: #fff5f0;
+  font-weight: 600;
+}
+
+.score-badge {
+  padding: 6px 12px;
+  border-radius: 6px;
   font-weight: 700;
-  color: #e67e22;
+  display: inline-block;
 }
 
-.score-green {
-  color: #27ae60;
-  font-weight: 600;
+.score-badge.score-green { background: #d4edda; color: #27ae60; }
+.score-badge.score-yellow { background: #fff3cd; color: #f39c12; }
+.score-badge.score-red { background: #f8d7da; color: #e74c3c; }
+
+.kpi-icon {
+  margin-right: 8px;
 }
 
-.score-yellow {
-  color: #f39c12;
+.score-cell {
+  padding: 4px 8px;
+  border-radius: 4px;
   font-weight: 600;
+  display: inline-block;
 }
 
-.score-red {
-  color: #e74c3c;
-  font-weight: 600;
-}
+.score-cell.green { color: #27ae60; }
+.score-cell.yellow { color: #f39c12; }
+.score-cell.red { color: #e74c3c; }
 
 .empty-comparison {
-  background: white;
-  border-radius: 16px;
-  padding: 60px;
   text-align: center;
+  padding: 60px 20px;
 }
 
 .empty-icon {
@@ -174,10 +201,20 @@
 }
 
 .empty-comparison h3 {
-  color: #1a1a2e;
+  color: #333;
   margin-bottom: 8px;
 }
 
 .empty-comparison p {
   color: #666;
+}
+
+@media (max-width: 768px) {
+  .company-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .comparison-table {
+    overflow-x: auto;
+  }
 }

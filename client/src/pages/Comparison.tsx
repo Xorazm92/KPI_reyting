@@ -1,201 +1,177 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+
+import React, { useState, useMemo } from 'react';
 import { useCompanies } from '../contexts/CompanyContext';
 import { KPI_CONFIG } from '../utils/kpiConfig';
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, RadialLinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
-import { Bar, Radar } from 'react-chartjs-2';
+import { getZone } from '../utils/kpiCalculator';
+import { ZoneBadge } from '../components/ZoneBadge';
+import { Chart as ChartJS, RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend } from 'chart.js';
+import { Radar } from 'react-chartjs-2';
 import './Comparison.css';
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, RadialLinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
+ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
 
 export function Comparison() {
-  const { companies, loading } = useCompanies();
+  const { companies } = useCompanies();
   const [selectedCompanies, setSelectedCompanies] = useState<string[]>([]);
 
-  const companiesWithData = useMemo(() => {
-    return companies.filter(c => c.overallIndex > 0 || c.kpis?.ltifr?.score > 0);
+  const availableCompanies = useMemo(() => {
+    return companies.filter(c => c.overallIndex > 0);
   }, [companies]);
 
   const toggleCompany = (id: string) => {
-    setSelectedCompanies(prev => {
-      if (prev.includes(id)) {
-        return prev.filter(c => c !== id);
-      }
-      if (prev.length >= 5) {
-        return prev;
-      }
-      return [...prev, id];
-    });
+    if (selectedCompanies.includes(id)) {
+      setSelectedCompanies(selectedCompanies.filter(cid => cid !== id));
+    } else if (selectedCompanies.length < 4) {
+      setSelectedCompanies([...selectedCompanies, id]);
+    }
   };
 
-  const selectedData = useMemo(() => {
-    return selectedCompanies
-      .map(id => companiesWithData.find(c => c.id === id))
-      .filter((c): c is NonNullable<typeof c> => c !== undefined);
-  }, [selectedCompanies, companiesWithData]);
-
-  const barChartData = useMemo(() => {
-    const colors = ['#e67e22', '#3498db', '#27ae60', '#9b59b6', '#e74c3c'];
-    
-    return {
-      labels: selectedData.map(c => c!.name.substring(0, 20)),
-      datasets: [{
-        label: 'MM Indeksi',
-        data: selectedData.map(c => c!.overallIndex),
-        backgroundColor: selectedData.map((_, i) => colors[i % colors.length]),
-        borderRadius: 8
-      }]
-    };
-  }, [selectedData]);
-
-  const radarChartData = useMemo(() => {
-    const colors = [
-      { bg: 'rgba(230, 126, 34, 0.2)', border: '#e67e22' },
-      { bg: 'rgba(52, 152, 219, 0.2)', border: '#3498db' },
-      { bg: 'rgba(39, 174, 96, 0.2)', border: '#27ae60' },
-      { bg: 'rgba(155, 89, 182, 0.2)', border: '#9b59b6' },
-      { bg: 'rgba(231, 76, 60, 0.2)', border: '#e74c3c' }
-    ];
+  const comparisonData = useMemo(() => {
+    if (selectedCompanies.length === 0) return null;
 
     const mainKpis = ['ltifr', 'trir', 'training', 'equipment', 'ppe', 'raCoverage'];
-    
+    const colors = ['#F56400', '#3498db', '#27ae60', '#9b59b6'];
+
     return {
       labels: mainKpis.map(k => KPI_CONFIG[k]?.name || k),
-      datasets: selectedData.map((company, index) => ({
-        label: company!.name.substring(0, 15),
-        data: mainKpis.map(k => company!.kpis[k as keyof typeof company.kpis]?.score || 0),
-        backgroundColor: colors[index % colors.length].bg,
-        borderColor: colors[index % colors.length].border,
-        borderWidth: 2,
-        pointBackgroundColor: colors[index % colors.length].border
-      }))
-    };
-  }, [selectedData]);
+      datasets: selectedCompanies.map((companyId, index) => {
+        const company = companies.find(c => c.id === companyId);
+        if (!company) return null;
 
-  if (loading) {
-    return <div className="loading-state"><div className="loading-spinner"></div></div>;
-  }
+        return {
+          label: company.name,
+          data: mainKpis.map(k => company.kpis[k]?.score || 0),
+          backgroundColor: `${colors[index]}33`,
+          borderColor: colors[index],
+          borderWidth: 2,
+          pointBackgroundColor: colors[index]
+        };
+      }).filter(Boolean)
+    };
+  }, [selectedCompanies, companies]);
+
+  const selectedCompaniesData = useMemo(() => {
+    return selectedCompanies.map(id => companies.find(c => c.id === id)).filter(Boolean);
+  }, [selectedCompanies, companies]);
 
   return (
-    <div className="comparison-page">
+    <div className="comparison">
       <div className="section-header">
-        <h2>⚖️ Korxonalarni Taqqoslash</h2>
-        <p className="helper-text">Taqqoslash uchun 2-5 ta korxonani tanlang</p>
+        <h2>🔍 Korxonalarni Taqqoslash</h2>
+        <div className="selection-info">
+          {selectedCompanies.length}/4 tanlangan
+        </div>
       </div>
 
-      <div className="comparison-layout">
-        <div className="company-selector">
-          <h3>Korxonalar ro'yxati</h3>
-          <div className="company-list">
-            {companiesWithData.map(company => (
+      <div className="company-selector">
+        <h3>Taqqoslash uchun korxonalarni tanlang (maksimum 4 ta)</h3>
+        <div className="company-grid">
+          {availableCompanies.map(company => {
+            const zone = getZone(company.overallIndex);
+            const isSelected = selectedCompanies.includes(company.id);
+
+            return (
               <div
                 key={company.id}
-                className={`company-item ${selectedCompanies.includes(company.id) ? 'selected' : ''}`}
+                className={`company-card ${isSelected ? 'selected' : ''}`}
                 onClick={() => toggleCompany(company.id)}
               >
-                <div className="company-checkbox">
-                  {selectedCompanies.includes(company.id) && '✓'}
+                <div className="company-card-header">
+                  <h4>{company.name}</h4>
+                  {isSelected && <span className="check-mark">✓</span>}
                 </div>
-                <div className="company-info">
-                  <div className="company-name">{company.name}</div>
-                  <div className="company-score">{company.overallIndex.toFixed(1)} ball</div>
+                <div className="company-card-body">
+                  <div className="score-display">
+                    <span className="score-label">MM Indeksi</span>
+                    <span className={`score-value score-${zone.name}`}>
+                      {company.overallIndex.toFixed(1)}
+                    </span>
+                  </div>
+                  <ZoneBadge zone={zone} />
                 </div>
               </div>
-            ))}
-          </div>
+            );
+          })}
         </div>
+      </div>
 
-        <div className="comparison-charts">
-          {selectedData.length >= 2 ? (
-            <>
-              <div className="chart-container">
-                <h3>📊 Umumiy Indeks Taqqoslash</h3>
-                <Bar
-                  data={barChartData}
-                  options={{
-                    responsive: true,
-                    plugins: {
-                      legend: { display: false }
-                    },
-                    scales: {
-                      y: {
-                        beginAtZero: true,
-                        max: 100
-                      }
-                    }
-                  }}
-                />
-              </div>
-
-              <div className="chart-container">
-                <h3>🎯 KPI Radar Taqqoslash</h3>
+      {selectedCompaniesData.length > 0 && (
+        <>
+          <div className="comparison-radar">
+            <h3>📊 KPI Radar Taqqoslash</h3>
+            {comparisonData && (
+              <div className="radar-wrapper">
                 <Radar
-                  data={radarChartData}
+                  data={comparisonData}
                   options={{
                     responsive: true,
+                    maintainAspectRatio: false,
                     scales: {
                       r: {
                         beginAtZero: true,
-                        max: 100
+                        max: 100,
+                        ticks: { stepSize: 20 }
                       }
                     }
                   }}
                 />
               </div>
+            )}
+          </div>
 
-              <div className="comparison-table">
-                <h3>📋 Batafsil Taqqoslash</h3>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Ko'rsatkich</th>
-                      {selectedData.map(c => (
-                        <th key={c!.id}>{c!.name.substring(0, 15)}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td><strong>MM Indeksi</strong></td>
-                      {selectedData.map(c => (
-                        <td key={c!.id} className="score-cell">{c!.overallIndex.toFixed(1)}</td>
-                      ))}
-                    </tr>
-                    <tr>
-                      <td><strong>Xodimlar</strong></td>
-                      {selectedData.map(c => (
-                        <td key={c!.id}>{c!.employees.toLocaleString()}</td>
-                      ))}
-                    </tr>
-                    {Object.entries(KPI_CONFIG).slice(0, 10).map(([key, config]) => (
-                      <tr key={key}>
-                        <td>{config.icon} {config.name}</td>
-                        {selectedData.map(c => {
-                          const kpi = c!.kpis[key as keyof typeof c.kpis];
-                          const score = kpi?.score || 0;
-                          return (
-                            <td
-                              key={c!.id}
-                              className={score >= 80 ? 'score-green' : score >= 50 ? 'score-yellow' : 'score-red'}
-                            >
-                              {score}
-                            </td>
-                          );
-                        })}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </>
-          ) : (
-            <div className="empty-comparison">
-              <div className="empty-icon">⚖️</div>
-              <h3>Taqqoslash uchun korxonalarni tanlang</h3>
-              <p>Chapdan kamida 2 ta korxonani tanlang</p>
-            </div>
-          )}
+          <div className="comparison-table">
+            <h3>📋 Batafsil Taqqoslash</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Ko'rsatkich</th>
+                  {selectedCompaniesData.map(company => (
+                    <th key={company.id}>{company.name}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="overall-row">
+                  <td><strong>MM Indeksi</strong></td>
+                  {selectedCompaniesData.map(company => (
+                    <td key={company.id}>
+                      <span className={`score-badge score-${getZone(company.overallIndex).name}`}>
+                        {company.overallIndex.toFixed(1)}
+                      </span>
+                    </td>
+                  ))}
+                </tr>
+                {Object.entries(KPI_CONFIG).slice(0, 10).map(([key, config]) => (
+                  <tr key={key}>
+                    <td>
+                      <span className="kpi-icon">{config.icon}</span>
+                      {config.name}
+                    </td>
+                    {selectedCompaniesData.map(company => {
+                      const score = company.kpis[key]?.score || 0;
+                      return (
+                        <td key={company.id}>
+                          <span className={`score-cell ${score >= 80 ? 'green' : score >= 50 ? 'yellow' : 'red'}`}>
+                            {score}
+                          </span>
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+
+      {selectedCompaniesData.length === 0 && (
+        <div className="empty-comparison">
+          <div className="empty-icon">🔍</div>
+          <h3>Taqqoslash uchun korxonalarni tanlang</h3>
+          <p>Yuqoridagi ro'yxatdan eng ko'pi bilan 4 ta korxonani tanlang</p>
         </div>
-      </div>
+      )}
     </div>
   );
 }
