@@ -1,0 +1,284 @@
+
+.company-details {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.header-left {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.btn-back {
+  padding: 0.75rem 1.5rem;
+  background: #f0f0f0;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-back:hover {
+  background: #e0e0e0;
+}
+
+.company-info h1 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.8rem;
+  color: #222;
+}
+
+.company-meta {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.meta-item {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.header-right {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.overall-score {
+  text-align: center;
+  padding: 1rem 1.5rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.score-label {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+.score-value {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.score-value.score-green { color: #27ae60; }
+.score-value.score-yellow { color: #f39c12; }
+.score-value.score-red { color: #e74c3c; }
+
+.btn-edit {
+  padding: 0.75rem 1.5rem;
+  background: #F56400;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-edit:hover {
+  background: #d55700;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.radar-card,
+.kpi-summary-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.radar-card h3,
+.kpi-summary-card h3 {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.2rem;
+  color: #222;
+}
+
+.kpi-summary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.kpi-summary-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.kpi-summary-item:hover {
+  background: #e9ecef;
+}
+
+.kpi-summary-icon {
+  font-size: 1.5rem;
+}
+
+.kpi-summary-info {
+  flex: 1;
+}
+
+.kpi-summary-name {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 0.25rem;
+}
+
+.kpi-summary-value {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #222;
+}
+
+.kpi-summary-score {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.kpi-summary-score.green { background: #d4edda; color: #27ae60; }
+.kpi-summary-score.yellow { background: #fff3cd; color: #f39c12; }
+.kpi-summary-score.red { background: #f8d7da; color: #e74c3c; }
+
+.kpi-details-table {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.kpi-details-table h3 {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.2rem;
+  color: #222;
+}
+
+.kpi-details-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.kpi-details-table th {
+  background: #f8f9fa;
+  padding: 1rem;
+  text-align: left;
+  font-size: 0.9rem;
+  color: #666;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.kpi-details-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.kpi-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.kpi-icon {
+  font-size: 1.2rem;
+}
+
+.score-cell {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.score-cell.green { color: #27ae60; }
+.score-cell.yellow { color: #f39c12; }
+.score-cell.red { color: #e74c3c; }
+
+.status-badge {
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.status-badge.success {
+  background: #d4edda;
+  color: #27ae60;
+}
+
+.status-badge.warning {
+  background: #fff3cd;
+  color: #f39c12;
+}
+
+.status-badge.danger {
+  background: #f8d7da;
+  color: #e74c3c;
+}
+
+.error-state {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.error-state h2 {
+  margin-bottom: 2rem;
+  color: #e74c3c;
+}
+
+.btn-primary {
+  padding: 0.75rem 2rem;
+  background: #F56400;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary:hover {
+  background: #d55700;
+}
+
+@media (max-width: 992px) {
+  .details-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .details-header {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .header-left,
+  .header-right {
+    width: 100%;
+  }
+}

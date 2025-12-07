@@ -117,28 +117,44 @@ export function normalizeKPI(value: number, kpiKey: string): number {
       break;
 
     case 'workStopInternal':
+      // Proaktiv xavfsizlik chorasi - ijobiy ko'rsatkich
+      // Har bir ichki to'xtatish +2 ball (max 100)
       score = Math.min(100, value * 2);
       break;
 
     case 'workStopExternal':
+      // Tashqi nazorat tomonidan ish to'xtatish - salbiy
+      // Har bir tashqi to'xtatish -20 ball
       if (value === 0) {
         score = 100;
+      } else if (value === 1) {
+        score = 80;
+      } else if (value === 2) {
+        score = 60;
+      } else if (value === 3) {
+        score = 40;
+      } else if (value === 4) {
+        score = 20;
       } else {
-        score = Math.max(0, 100 - (value * 20));
+        score = 0;
       }
       break;
 
     case 'insurancePayments':
+      // Sug'urta to'lovlari (oylik ish haqi nisbati %)
+      // 0% = 100 ball, har 0.1% uchun -2 ball
       if (value === 0) {
         score = 100;
       } else if (value <= 0.5) {
-        score = 90 - (value * 20);
+        score = 100 - (value * 20); // 0.5% = 90 ball
       } else if (value <= 1) {
-        score = 80 - ((value - 0.5) * 40);
+        score = 90 - ((value - 0.5) * 40); // 1% = 70 ball
       } else if (value <= 2) {
-        score = 60 - ((value - 1) * 30);
+        score = 70 - ((value - 1) * 30); // 2% = 40 ball
+      } else if (value <= 3) {
+        score = 40 - ((value - 2) * 20); // 3% = 20 ball
       } else {
-        score = Math.max(0, 30 - ((value - 2) * 15));
+        score = Math.max(0, 20 - ((value - 3) * 10));
       }
       break;
   }

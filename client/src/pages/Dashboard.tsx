@@ -145,9 +145,17 @@ export function Dashboard() {
                     </td>
                     <td className="company-cell">
                       <div className="company-name">{company.name}</div>
-                      <div className="company-level">{company.level}</div>
+                      <div className="company-meta">
+                        <span className="company-level">{company.level}</span>
+                        <span className="company-profile">{company.profile}</span>
+                      </div>
                     </td>
-                    <td>{company.employees.toLocaleString()}</td>
+                    <td>
+                      <div className="employees-cell">
+                        <span className="employees-count">{company.employees.toLocaleString()}</span>
+                        <span className="employees-label">xodim</span>
+                      </div>
+                    </td>
                     <td className="score-cell">
                       <div className={`score-value score-${zone.name}`}>
                         {company.overallIndex.toFixed(1)}

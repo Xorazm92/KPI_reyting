@@ -7,6 +7,7 @@ import { Header } from './components/Header';
 import { Navigation } from './components/Navigation';
 import { Dashboard } from './pages/Dashboard';
 import { AddCompany } from './pages/AddCompany';
+import { CompanyDetails } from './pages/CompanyDetails';
 import { Risks } from './pages/Risks';
 import { Comparison } from './pages/Comparison';
 import { Statistics } from './pages/Statistics';
@@ -27,6 +28,7 @@ function AppContent() {
         <main className="main-content">
           <Switch>
             <Route path="/" component={Dashboard} />
+            <Route path="/company/:id" component={CompanyDetails} />
             <Route path="/risks" component={Risks} />
             <Route path="/add-company" component={AddCompany} />
             <Route path="/edit/:id" component={AddCompany} />
